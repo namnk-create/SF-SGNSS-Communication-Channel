@@ -491,15 +491,8 @@ th.donts{background:#FFEBEE;color:#C62828;}
 
           <div class="admin-section-title">👤 Nhân viên</div>
           <div id="dashEmpSummary" class="admin-hint">Đang tải...</div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:200px;">
-              <div style="font-size:12px;font-weight:700;color:var(--sf-dark-grey);margin-bottom:6px;">Theo kho</div>
-              <table class="admin-table"><thead><tr><th>Kho</th><th>Số lượng</th></tr></thead><tbody id="dashWarehouseBody"></tbody></table>
-            </div>
-            <div style="flex:1;min-width:200px;">
-              <div style="font-size:12px;font-weight:700;color:var(--sf-dark-grey);margin-bottom:6px;">Theo chức danh</div>
-              <table class="admin-table"><thead><tr><th>Chức danh</th><th>Số lượng</th></tr></thead><tbody id="dashTitleBody"></tbody></table>
-            </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table" id="dashPivotTable"><thead><tr id="dashPivotHeadRow"><th>Kho</th></tr></thead><tbody id="dashPivotBody"></tbody></table>
           </div>
 
           <div class="admin-section-title">🎓 Chương trình đào tạo</div>
@@ -2804,20 +2797,19 @@ async function loadDashboardStats(){
 function renderDashboardStats(data){
   document.getElementById('dashEmpSummary').textContent = `Tổng cộng: ${data.employees.total} nhân viên.`;
 
-  const whBody = document.getElementById('dashWarehouseBody');
-  whBody.innerHTML = '';
-  Object.entries(data.employees.byWarehouse).forEach(([wh, count]) => {
+  // Bảng chéo Kho x Chức danh — hàng là từng kho, cột là từng chức danh (tự thêm hàng khi
+  // có kho mới, tự thêm cột khi có chức danh mới, không cần sửa code).
+  const titles = data.employees.titles || [];
+  const pivot = data.employees.pivot || {};
+  const headRow = document.getElementById('dashPivotHeadRow');
+  headRow.innerHTML = '<th>Kho</th>' + titles.map(t => `<th>${escUser(t)}</th>`).join('');
+  const pivotBody = document.getElementById('dashPivotBody');
+  pivotBody.innerHTML = '';
+  Object.keys(pivot).sort().forEach(wh => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escUser(wh)}</td><td>${count}</td>`;
-    whBody.appendChild(tr);
-  });
-
-  const titleBody = document.getElementById('dashTitleBody');
-  titleBody.innerHTML = '';
-  Object.entries(data.employees.byTitle).forEach(([t, count]) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escUser(t)}</td><td>${count}</td>`;
-    titleBody.appendChild(tr);
+    const cells = titles.map(t => `<td>${pivot[wh][t] || 0}</td>`).join('');
+    tr.innerHTML = `<td><strong>${escUser(wh)}</strong></td>${cells}`;
+    pivotBody.appendChild(tr);
   });
 
   const progBody = document.getElementById('dashProgramsBody');
