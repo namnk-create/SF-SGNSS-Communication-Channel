@@ -213,6 +213,13 @@ th.donts{background:#FFEBEE;color:#C62828;}
 .rte-editor{min-height:160px;max-height:400px;overflow-y:auto;border:1px solid var(--sf-border);border-top:none;border-radius:0 0 6px 6px;padding:10px 12px;font-size:13px;line-height:1.6;background:#fff;}
 .rte-editor:empty::before{content:attr(data-placeholder);color:#999;}
 .rte-editor ul{padding-left:20px;margin:6px 0;}
+.content-block{border:1px solid var(--sf-border);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+.content-block-header{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--sf-grey);border-bottom:1px solid var(--sf-border);}
+.content-block-header label{font-size:11px;font-weight:700;color:var(--sf-dark-grey);white-space:nowrap;}
+.content-block-bgcolor{width:28px;height:28px;padding:1px;border:1px solid var(--sf-border);border-radius:4px;cursor:pointer;}
+.content-block-remove{margin-left:auto;}
+.content-block .rte-toolbar{border-radius:0;border-left:none;border-right:none;}
+.content-block .rte-editor{border-left:none;border-right:none;border-radius:0;min-height:100px;}
 .menu-accordion-header{cursor:pointer;justify-content:flex-start;}
 .menu-accordion-header .accordion-chevron{margin-left:auto;font-size:11px;transition:transform .2s;}
 .menu-accordion-header.open .accordion-chevron{transform:rotate(180deg);}
@@ -316,8 +323,10 @@ th.donts{background:#FFEBEE;color:#C62828;}
       <div class="menu-wrap">
         <button class="btn-menu" id="btnMenu" aria-label="Menu"><span></span><span></span><span></span></button>
         <div class="dropdown-menu" id="dropdownMenu">
-          <div class="dm-title" id="t-menu-title">Chương trình đào tạo</div>
-          <div id="dynamicMenuItems"></div>
+          <div class="dropdown-item menu-accordion-header" id="menuProgramsHeader">
+            <span class="di-icon">🎓</span><span id="t-menu-title">Chương trình đào tạo</span><span class="accordion-chevron">▾</span>
+          </div>
+          <div id="dynamicMenuItems" class="menu-accordion-body" style="display:none;"></div>
           <div class="dropdown-item menu-accordion-header" id="menuAnnouncementsHeader" style="border-top:2px solid var(--sf-border);">
             <span class="di-icon">📢</span><span>Nội dung thông báo</span><span class="accordion-chevron">▾</span>
           </div>
@@ -326,7 +335,7 @@ th.donts{background:#FFEBEE;color:#C62828;}
             <span class="di-icon">📅</span><span>Bài test định kỳ</span><span class="accordion-chevron">▾</span>
           </div>
           <div class="menu-accordion-body" id="menuPeriodicTestsBody" style="display:none;"></div>
-          <div class="dropdown-item" id="menuItemTimesheet" style="border-top:2px solid var(--sf-border);"><span class="di-icon">🕒</span><span>Vận hành & Đánh giá SSM/SGNSS</span></div>
+          <div class="dropdown-item" id="menuItemTimesheet" style="border-top:2px solid var(--sf-border);display:none;"><span class="di-icon">🕒</span><span>Vận hành & Đánh giá SSM/SGNSS</span></div>
           <div class="dropdown-item" id="menuItemAdmin" style="border-top:2px solid var(--sf-border);"><span class="di-icon">🔐</span><span>Admin</span></div>
         </div>
       </div>
@@ -634,66 +643,27 @@ th.donts{background:#FFEBEE;color:#C62828;}
             </div>
             <div class="mod-lang-panel" data-modlangpanel="vi">
               <div class="admin-row"><input type="text" id="modTitleVi" placeholder="Tên module (Tiếng Việt) *"></div>
-              <div class="rte-toolbar" data-rte-for="modContentVi">
-                <button type="button" class="rte-btn" data-cmd="bold" title="In đậm"><b>B</b></button>
-                <button type="button" class="rte-btn" data-cmd="italic" title="In nghiêng"><i>I</i></button>
-                <button type="button" class="rte-btn" data-cmd="underline" title="Gạch chân"><u>U</u></button>
-                <input type="color" class="rte-color" title="Màu chữ" value="#231F20">
-                <select class="rte-fontsize" title="Cỡ chữ">
-                  <option value="2">Nhỏ</option>
-                  <option value="3" selected>Vừa</option>
-                  <option value="5">Lớn</option>
-                  <option value="7">Rất lớn</option>
-                </select>
-                <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Danh sách gạch đầu dòng">• List</button>
-                <button type="button" class="rte-btn" data-cmd="removeFormat" title="Xóa định dạng">Xóa ĐD</button>
-              </div>
-              <div class="rte-editor" id="modContentVi" contenteditable="true" data-placeholder="Nội dung (Tiếng Việt)..."></div>
+              <div class="content-blocks-container" id="contentBlocksVi" data-lang="vi"></div>
+              <button type="button" class="btn-secondary add-content-block-btn" data-lang="vi" style="margin-top:6px;padding:8px 14px;font-size:12.5px;">+ Thêm khối nội dung</button>
             </div>
             <div class="mod-lang-panel" data-modlangpanel="en" style="display:none;">
               <div class="admin-row"><input type="text" id="modTitleEn" placeholder="Module title (English)"></div>
-              <div class="rte-toolbar" data-rte-for="modContentEn">
-                <button type="button" class="rte-btn" data-cmd="bold" title="Bold"><b>B</b></button>
-                <button type="button" class="rte-btn" data-cmd="italic" title="Italic"><i>I</i></button>
-                <button type="button" class="rte-btn" data-cmd="underline" title="Underline"><u>U</u></button>
-                <input type="color" class="rte-color" title="Text color" value="#231F20">
-                <select class="rte-fontsize" title="Font size">
-                  <option value="2">Small</option>
-                  <option value="3" selected>Normal</option>
-                  <option value="5">Large</option>
-                  <option value="7">X-Large</option>
-                </select>
-                <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Bullet list">• List</button>
-                <button type="button" class="rte-btn" data-cmd="removeFormat" title="Clear formatting">Clear</button>
-              </div>
-              <div class="rte-editor" id="modContentEn" contenteditable="true" data-placeholder="Content (English)..."></div>
+              <div class="content-blocks-container" id="contentBlocksEn" data-lang="en"></div>
+              <button type="button" class="btn-secondary add-content-block-btn" data-lang="en" style="margin-top:6px;padding:8px 14px;font-size:12.5px;">+ Add content block</button>
             </div>
             <div class="mod-lang-panel" data-modlangpanel="zh" style="display:none;">
               <div class="admin-row"><input type="text" id="modTitleZh" placeholder="模块标题（中文）"></div>
-              <div class="rte-toolbar" data-rte-for="modContentZh">
-                <button type="button" class="rte-btn" data-cmd="bold" title="粗体"><b>B</b></button>
-                <button type="button" class="rte-btn" data-cmd="italic" title="斜体"><i>I</i></button>
-                <button type="button" class="rte-btn" data-cmd="underline" title="下划线"><u>U</u></button>
-                <input type="color" class="rte-color" title="文字颜色" value="#231F20">
-                <select class="rte-fontsize" title="字号">
-                  <option value="2">小</option>
-                  <option value="3" selected>中</option>
-                  <option value="5">大</option>
-                  <option value="7">特大</option>
-                </select>
-                <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="项目符号列表">• List</button>
-                <button type="button" class="rte-btn" data-cmd="removeFormat" title="清除格式">清除</button>
-              </div>
-              <div class="rte-editor" id="modContentZh" contenteditable="true" data-placeholder="内容（中文）..."></div>
+              <div class="content-blocks-container" id="contentBlocksZh" data-lang="zh"></div>
+              <button type="button" class="btn-secondary add-content-block-btn" data-lang="zh" style="margin-top:6px;padding:8px 14px;font-size:12.5px;">+ 添加内容块</button>
             </div>
-            <div class="admin-hint">Dùng thanh công cụ để in đậm/nghiêng/đổi màu chữ trực tiếp — không cần gõ tay HTML. Chỉ bắt buộc điền Tiếng Việt — bỏ trống Anh/Trung thì trang tự hiện tạm bản Tiếng Việt khi đổi ngôn ngữ.</div>
+            <div class="admin-hint">Mỗi khối chỉ nên tóm tắt 1 cụm nội dung — bấm "+ Thêm khối nội dung" để tách thành nhiều khối, mỗi khối tự chọn màu nền riêng cho đỡ đơn điệu. Dùng thanh công cụ để in đậm/nghiêng/đổi màu chữ. Chỉ bắt buộc điền Tiếng Việt — bỏ trống Anh/Trung thì trang tự hiện tạm bản Tiếng Việt khi đổi ngôn ngữ.</div>
             <div class="admin-row">
               <button type="button" class="btn-secondary" id="btnSaveModule">Lưu module</button>
               <button type="button" class="btn-secondary" id="btnCancelModuleEdit" style="background:#888;">Đóng</button>
             </div>
 
             <div class="admin-section-title">🔁 Flashcard ôn tập <span id="flashcardSectionLabel" style="font-weight:400;color:var(--sf-dark-grey);"></span></div>
-            <table class="admin-table"><thead><tr><th>Câu hỏi (VI)</th><th>Đáp án (VI)</th><th></th></tr></thead><tbody id="flashcardTableBody"></tbody></table>
+            <table class="admin-table"><thead><tr><th>Câu hỏi (VI)</th><th>Đáp án (VI)</th><th>Màu</th><th></th></tr></thead><tbody id="flashcardTableBody"></tbody></table>
             <div class="admin-tabs" id="fcLangTabs">
               <button type="button" class="pill-tab-btn active" data-fclang="vi">🇻🇳 Tiếng Việt</button>
               <button type="button" class="pill-tab-btn" data-fclang="en">🇬🇧 English</button>
@@ -717,8 +687,18 @@ th.donts{background:#FFEBEE;color:#C62828;}
                 <input type="text" id="newFcAnswerZh" placeholder="答案（中文）">
               </div>
             </div>
+            <div class="admin-row" style="align-items:center;">
+              <label style="font-size:12px;font-weight:600;white-space:nowrap;">Màu nền:</label>
+              <input type="color" id="newFcBgColor" value="#FFFFFF" style="width:40px;padding:2px;flex:0;">
+              <label style="font-size:12px;font-weight:600;white-space:nowrap;">Màu chữ:</label>
+              <input type="color" id="newFcTextColor" value="#231F20" style="width:40px;padding:2px;flex:0;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;flex:0;white-space:nowrap;">
+                <input type="checkbox" id="newFcBold" style="flex:0;width:auto;min-height:auto;"> In đậm
+              </label>
+            </div>
             <div class="admin-row">
-              <button type="button" class="admin-btn-add" id="btnAddFlashcard" title="Thêm flashcard">+</button>
+              <button type="button" class="admin-btn-add" id="btnAddFlashcard" title="Thêm/Cập nhật flashcard">+</button>
+              <button type="button" class="btn-secondary" id="btnCancelFcEdit" style="display:none;background:#888;">Hủy sửa</button>
             </div>
           </div>
         </div>
@@ -1552,11 +1532,30 @@ function renderModules(lang){
     body.innerHTML = `<div style="color:#999;font-size:12px;margin-bottom:6px;">${t.moduleHint}</div>`;
     mod.blocks.forEach(block => {
       if(block.type === 'html'){
-        // Nội dung do Admin tự viết (HTML cơ bản) qua "Thiết lập chương trình học".
-        const div = document.createElement('div');
-        div.className = 'custom-html-block';
-        div.innerHTML = block.body[lang];
-        body.appendChild(div);
+        // Nội dung do Admin tự viết qua "Thiết lập chương trình học" — lưu dạng JSON mảng
+        // nhiều khối [{html, bgColor}], mỗi khối có màu nền riêng cho đỡ đơn điệu. Tương
+        // thích ngược: nếu là chuỗi HTML thô kiểu cũ (chưa tách khối), bọc thành 1 khối.
+        const raw = block.body[lang];
+        let blocksArr;
+        try{
+          const parsed = JSON.parse(raw);
+          blocksArr = Array.isArray(parsed) ? parsed : [{ html: raw, bgColor: null }];
+        }catch(e){
+          blocksArr = raw ? [{ html: raw, bgColor: null }] : [];
+        }
+        blocksArr.forEach(b => {
+          if(!b.html || !b.html.trim()) return;
+          const div = document.createElement('div');
+          div.className = 'custom-html-block';
+          if(b.bgColor && b.bgColor.toLowerCase() !== '#ffffff'){
+            div.style.background = b.bgColor;
+            div.style.padding = '12px 14px';
+            div.style.borderRadius = '8px';
+          }
+          div.style.marginBottom = '10px';
+          div.innerHTML = b.html;
+          body.appendChild(div);
+        });
       } else if(block.type === 'list'){
         const h = document.createElement('h3');
         h.className = 'section-title';
@@ -1630,9 +1629,14 @@ function renderModules(lang){
           const cc = document.createElement('div');
           cc.className = 'card-container';
           cc.onclick = () => cc.querySelector('.card').classList.toggle('flipped');
+          // Style tùy chỉnh (màu nền/màu chữ/đậm) do Admin đặt cho flashcard này — nếu không
+          // đặt gì thì dùng mặc định của trang (không style inline nào cả).
+          const styleAttr = (fc.bgColor || fc.textColor || fc.isBold)
+            ? `style="${fc.bgColor ? `background:${fc.bgColor};` : ''}${fc.textColor ? `color:${fc.textColor};` : ''}${fc.isBold ? 'font-weight:700;' : ''}"`
+            : '';
           cc.innerHTML = `<div class="card">
-            <div class="card-face card-front">${fc.q[lang]}</div>
-            <div class="card-face card-back">${fc.a[lang]}</div>
+            <div class="card-face card-front" ${styleAttr}>${fc.q[lang]}</div>
+            <div class="card-face card-back" ${styleAttr}>${fc.a[lang]}</div>
           </div>`;
           grid.appendChild(cc);
         });
@@ -2297,7 +2301,7 @@ async function loadModulesForPublic(){
       if(m.flashcards && m.flashcards.length){
         blocks.push({
           type: 'flashcards',
-          items: m.flashcards.map(f => ({ q: f.question, a: f.answer })),
+          items: m.flashcards.map(f => ({ q: f.question, a: f.answer, bgColor: f.bgColor, textColor: f.textColor, isBold: f.isBold })),
         });
       }
       MODULES.push({
@@ -3041,18 +3045,103 @@ function renderModuleTable(){
 function clearModuleForm(){
   editingModuleId = null;
   flashcardTargetModuleId = null;
+  editingFlashcardId = null;
   document.getElementById('moduleEditForm').style.display = 'none';
   document.getElementById('flashcardSectionLabel').textContent = '';
   ['modTitleVi','modTitleEn','modTitleZh',
    'newFcQuestionVi','newFcQuestionEn','newFcQuestionZh','newFcAnswerVi','newFcAnswerEn','newFcAnswerZh']
     .forEach(id => { document.getElementById(id).value = ''; });
-  ['modContentVi','modContentEn','modContentZh'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+  setContentBlocksData('vi', []);
+  setContentBlocksData('en', []);
+  setContentBlocksData('zh', []);
   document.getElementById('modOrder').value = '';
   document.getElementById('modColor').value = '#E11B22';
+  document.getElementById('newFcBgColor').value = '#FFFFFF';
+  document.getElementById('newFcTextColor').value = '#231F20';
+  document.getElementById('newFcBold').checked = false;
+  document.getElementById('btnCancelFcEdit').style.display = 'none';
   flashcardsCache = [];
   document.getElementById('flashcardTableBody').innerHTML = '';
   switchModuleFormLang('vi');
   switchFlashcardFormLang('vi');
+}
+// ================= KHỐI NỘI DUNG MODULE (nhiều khối, mỗi khối 1 màu nền riêng) =================
+// Lưu trong DB dạng JSON: [{"html":"...", "bgColor":"#FFF8E1"}, ...] — tương thích ngược với
+// nội dung module CŨ (trước khi có tính năng này) vốn chỉ là 1 chuỗi HTML thô, bằng cách tự
+// bọc chuỗi đó thành 1 khối duy nhất nếu JSON.parse thất bại.
+function parseContentBlocksRaw(raw){
+  if(!raw) return [];
+  try{
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed)) return parsed;
+  }catch(e){ /* không phải JSON -> rơi xuống coi là HTML thô kiểu cũ */ }
+  return [{ html: raw, bgColor: '#FFFFFF' }];
+}
+function createContentBlockElement(lang, blockData){
+  const div = document.createElement('div');
+  div.className = 'content-block';
+  const uid = 'cb' + Math.random().toString(36).slice(2, 9);
+  div.innerHTML = `
+    <div class="content-block-header">
+      <label>Màu nền khối:</label>
+      <input type="color" class="content-block-bgcolor" value="${blockData.bgColor || '#FFFFFF'}">
+      <button type="button" class="icon-btn-del content-block-remove" title="Xóa khối này">🗑️</button>
+    </div>
+    <div class="rte-toolbar">
+      <button type="button" class="rte-btn" data-cmd="bold" title="In đậm"><b>B</b></button>
+      <button type="button" class="rte-btn" data-cmd="italic" title="In nghiêng"><i>I</i></button>
+      <button type="button" class="rte-btn" data-cmd="underline" title="Gạch chân"><u>U</u></button>
+      <input type="color" class="rte-color" title="Màu chữ" value="#231F20">
+      <select class="rte-fontsize" title="Cỡ chữ">
+        <option value="2">Nhỏ</option>
+        <option value="3" selected>Vừa</option>
+        <option value="5">Lớn</option>
+        <option value="7">Rất lớn</option>
+      </select>
+      <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Danh sách gạch đầu dòng">• List</button>
+      <button type="button" class="rte-btn" data-cmd="removeFormat" title="Xóa định dạng">Xóa ĐD</button>
+    </div>
+    <div class="rte-editor content-block-editor" contenteditable="true" data-placeholder="Nội dung khối này..."></div>`;
+  const editor = div.querySelector('.content-block-editor');
+  editor.innerHTML = blockData.html || '';
+  // Áp màu nền hiện tại cho cả khối + toolbar, và cập nhật ngay khi đổi màu.
+  const applyBg = (color) => {
+    div.style.background = color;
+    div.querySelector('.content-block-header').style.background = color;
+  };
+  applyBg(blockData.bgColor || '#FFFFFF');
+  div.querySelector('.content-block-bgcolor').addEventListener('input', (e) => applyBg(e.target.value));
+  div.querySelector('.content-block-remove').addEventListener('click', () => div.remove());
+  // Toolbar của CHÍNH khối này — dùng closest() để luôn tác động đúng editor bên trong nó,
+  // không lẫn với các khối khác (khác với toolbar cố định theo ID trước đây).
+  div.querySelectorAll('.rte-btn').forEach(btn => {
+    btn.addEventListener('click', () => { editor.focus(); document.execCommand(btn.dataset.cmd, false, null); });
+  });
+  const colorInput = div.querySelector('.rte-color');
+  colorInput.addEventListener('input', () => { editor.focus(); document.execCommand('foreColor', false, colorInput.value); });
+  const sizeSelect = div.querySelector('.rte-fontsize');
+  sizeSelect.addEventListener('change', () => { editor.focus(); document.execCommand('fontSize', false, sizeSelect.value); });
+  return div;
+}
+function setContentBlocksData(lang, blocksArray){
+  const container = document.getElementById('contentBlocks' + lang.charAt(0).toUpperCase() + lang.slice(1));
+  container.innerHTML = '';
+  const blocks = (blocksArray && blocksArray.length) ? blocksArray : [{ html: '', bgColor: '#FFFFFF' }];
+  blocks.forEach(b => container.appendChild(createContentBlockElement(lang, b)));
+}
+function getContentBlocksData(lang){
+  const container = document.getElementById('contentBlocks' + lang.charAt(0).toUpperCase() + lang.slice(1));
+  return [...container.querySelectorAll('.content-block')].map(div => ({
+    html: div.querySelector('.content-block-editor').innerHTML,
+    bgColor: div.querySelector('.content-block-bgcolor').value,
+  })).filter(b => b.html.trim() !== ''); // bỏ khối trống khi lưu, tránh rác
+}
+function addContentBlockUI(lang){
+  const container = document.getElementById('contentBlocks' + lang.charAt(0).toUpperCase() + lang.slice(1));
+  const newBlock = createContentBlockElement(lang, { html: '', bgColor: '#FFFFFF' });
+  container.appendChild(newBlock);
+  newBlock.scrollIntoView({behavior:'smooth', block:'center'});
+  newBlock.querySelector('.content-block-editor').focus();
 }
 function switchModuleFormLang(lang){
   document.querySelectorAll('#modLangTabs .pill-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.modlang === lang));
@@ -3080,9 +3169,9 @@ async function editModule(id){
   document.getElementById('modTitleVi').value = m.title || '';
   document.getElementById('modTitleEn').value = m.title_en || '';
   document.getElementById('modTitleZh').value = m.title_zh || '';
-  document.getElementById('modContentVi').innerHTML = m.content_html || '';
-  document.getElementById('modContentEn').innerHTML = m.content_html_en || '';
-  document.getElementById('modContentZh').innerHTML = m.content_html_zh || '';
+  setContentBlocksData('vi', parseContentBlocksRaw(m.content_html));
+  setContentBlocksData('en', parseContentBlocksRaw(m.content_html_en));
+  setContentBlocksData('zh', parseContentBlocksRaw(m.content_html_zh));
   document.getElementById('flashcardSectionLabel').textContent = `(của module: "${m.title}")`;
   switchModuleFormLang('vi');
   document.getElementById('moduleEditForm').scrollIntoView({behavior:'smooth', block:'start'});
@@ -3097,9 +3186,12 @@ async function saveModule(){
   const titleZh = document.getElementById('modTitleZh').value.trim();
   const order = parseInt(document.getElementById('modOrder').value, 10) || 1;
   const color = document.getElementById('modColor').value || '#E11B22';
-  const contentHtmlVi = document.getElementById('modContentVi').innerHTML;
-  const contentHtmlEn = document.getElementById('modContentEn').innerHTML;
-  const contentHtmlZh = document.getElementById('modContentZh').innerHTML;
+  const blocksVi = getContentBlocksData('vi');
+  const blocksEn = getContentBlocksData('en');
+  const blocksZh = getContentBlocksData('zh');
+  const contentHtmlVi = JSON.stringify(blocksVi);
+  const contentHtmlEn = blocksEn.length ? JSON.stringify(blocksEn) : '';
+  const contentHtmlZh = blocksZh.length ? JSON.stringify(blocksZh) : '';
   if(!titleVi){ msgEl.textContent = 'Vui lòng nhập tên module (Tiếng Việt).'; msgEl.style.color = 'var(--fail-red)'; flashHighlight(msgEl); return; }
   const token = adminToken();
   const body = { titleVi, titleEn, titleZh, color, contentHtmlVi, contentHtmlEn, contentHtmlZh, moduleOrder: order };
@@ -3129,7 +3221,9 @@ async function saveModule(){
       flashcardTargetModuleId = data.id;
       document.getElementById('flashcardSectionLabel').textContent = `(của module vừa tạo: "${titleVi}")`;
       ['modTitleVi','modTitleEn','modTitleZh'].forEach(id => { document.getElementById(id).value = ''; });
-      ['modContentVi','modContentEn','modContentZh'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+      setContentBlocksData('vi', []);
+      setContentBlocksData('en', []);
+      setContentBlocksData('zh', []);
       document.getElementById('modOrder').value = modulesCache.length + 1;
       switchModuleFormLang('vi');
       await loadFlashcardsAdmin(data.id);
@@ -3177,16 +3271,48 @@ async function loadFlashcardsAdmin(moduleId){
     renderFlashcardTable();
   }catch(err){ console.error('Lỗi tải flashcard:', err); }
 }
+let editingFlashcardId = null;
 function renderFlashcardTable(){
   const tbody = document.getElementById('flashcardTableBody');
   tbody.innerHTML = '';
   flashcardsCache.forEach(f => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escUser(f.question)}</td><td>${escUser(f.answer)}</td>
-      <td><button type="button" class="icon-btn-del" data-fc-del="${f.id}" title="Xóa">🗑️</button></td>`;
+    const swatch = `<span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:${f.bg_color || '#fff'};border:1px solid var(--sf-border);vertical-align:middle;"></span>`;
+    tr.innerHTML = `<td>${escUser(f.question)}</td><td>${escUser(f.answer)}</td><td>${swatch}</td>
+      <td style="white-space:nowrap;">
+        <button type="button" class="icon-btn-edit" data-fc-edit="${f.id}" title="Sửa">✏️</button>
+        <button type="button" class="icon-btn-del" data-fc-del="${f.id}" title="Xóa">🗑️</button>
+      </td>`;
     tbody.appendChild(tr);
   });
+  tbody.querySelectorAll('[data-fc-edit]').forEach(b => b.addEventListener('click', () => editFlashcard(parseInt(b.dataset.fcEdit,10))));
   tbody.querySelectorAll('[data-fc-del]').forEach(b => b.addEventListener('click', () => deleteFlashcard(parseInt(b.dataset.fcDel,10))));
+}
+function editFlashcard(id){
+  const f = flashcardsCache.find(x => x.id === id);
+  if(!f) return;
+  editingFlashcardId = id;
+  document.getElementById('newFcQuestionVi').value = f.question || '';
+  document.getElementById('newFcAnswerVi').value = f.answer || '';
+  document.getElementById('newFcQuestionEn').value = f.question_en || '';
+  document.getElementById('newFcAnswerEn').value = f.answer_en || '';
+  document.getElementById('newFcQuestionZh').value = f.question_zh || '';
+  document.getElementById('newFcAnswerZh').value = f.answer_zh || '';
+  document.getElementById('newFcBgColor').value = f.bg_color || '#FFFFFF';
+  document.getElementById('newFcTextColor').value = f.text_color || '#231F20';
+  document.getElementById('newFcBold').checked = !!f.is_bold;
+  document.getElementById('btnCancelFcEdit').style.display = 'inline-block';
+  document.getElementById('newFcQuestionVi').scrollIntoView({behavior:'smooth', block:'center'});
+  flashHighlight(document.getElementById('newFcQuestionVi'));
+}
+function cancelFcEdit(){
+  editingFlashcardId = null;
+  ['newFcQuestionVi','newFcAnswerVi','newFcQuestionEn','newFcAnswerEn','newFcQuestionZh','newFcAnswerZh']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('newFcBgColor').value = '#FFFFFF';
+  document.getElementById('newFcTextColor').value = '#231F20';
+  document.getElementById('newFcBold').checked = false;
+  document.getElementById('btnCancelFcEdit').style.display = 'none';
 }
 async function addFlashcard(){
   if(!flashcardTargetModuleId){ alert('Vui lòng lưu module trước khi thêm flashcard.'); return; }
@@ -3196,20 +3322,31 @@ async function addFlashcard(){
   const answerEn = document.getElementById('newFcAnswerEn').value.trim();
   const questionZh = document.getElementById('newFcQuestionZh').value.trim();
   const answerZh = document.getElementById('newFcAnswerZh').value.trim();
+  const bgColor = document.getElementById('newFcBgColor').value;
+  const textColor = document.getElementById('newFcTextColor').value;
+  const isBold = document.getElementById('newFcBold').checked;
   if(!questionVi || !answerVi){ alert('Vui lòng nhập cả câu hỏi và đáp án (Tiếng Việt).'); return; }
   const token = adminToken();
+  const body = { questionVi, answerVi, questionEn, answerEn, questionZh, answerZh, bgColor, textColor, isBold };
   try{
-    const res = await fetch(`${WORKER_BASE_URL}/api/admin/flashcards`, {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-      body: JSON.stringify({ moduleId: flashcardTargetModuleId, questionVi, answerVi, questionEn, answerEn, questionZh, answerZh })
-    });
-    if(!res.ok){ const d = await res.json(); alert(d.error || 'Không thêm được flashcard.'); return; }
-    ['newFcQuestionVi','newFcAnswerVi','newFcQuestionEn','newFcAnswerEn','newFcQuestionZh','newFcAnswerZh']
-      .forEach(id => { document.getElementById(id).value = ''; });
+    let res;
+    if(editingFlashcardId){
+      res = await fetch(`${WORKER_BASE_URL}/api/admin/flashcards`, {
+        method: 'PUT', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+        body: JSON.stringify({ id: editingFlashcardId, ...body })
+      });
+    } else {
+      res = await fetch(`${WORKER_BASE_URL}/api/admin/flashcards`, {
+        method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+        body: JSON.stringify({ moduleId: flashcardTargetModuleId, ...body })
+      });
+    }
+    if(!res.ok){ const d = await res.json(); alert(d.error || 'Không lưu được flashcard.'); return; }
+    cancelFcEdit();
     await loadFlashcardsAdmin(flashcardTargetModuleId);
     renderModuleTable(); // cập nhật lại số đếm flashcard trong bảng module
   }catch(err){
-    console.error('Lỗi thêm flashcard:', err);
+    console.error('Lỗi lưu flashcard:', err);
     alert('Không kết nối được máy chủ.');
   }
 }
@@ -3218,6 +3355,7 @@ async function deleteFlashcard(id){
   const token = adminToken();
   try{
     await fetch(`${WORKER_BASE_URL}/api/admin/flashcards?id=${id}`, { method: 'DELETE', headers: {'Authorization': 'Bearer ' + token} });
+    if(editingFlashcardId === id) cancelFcEdit();
     await loadFlashcardsAdmin(flashcardTargetModuleId);
     renderModuleTable();
   }catch(err){ console.error('Lỗi xóa flashcard:', err); }
@@ -4139,6 +4277,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ----- Admin: mở/đóng modal -----
   document.getElementById('menuItemTimesheet').addEventListener('click', () => { location.href = 'timesheet.html'; });
   document.getElementById('menuItemAdmin').addEventListener('click', () => { toggleMenu(true); openAdminModal(); });
+  document.getElementById('menuProgramsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuProgramsHeader','dynamicMenuItems'); });
   document.getElementById('menuAnnouncementsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuAnnouncementsHeader','menuAnnouncementsBody'); });
   document.getElementById('menuPeriodicTestsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuPeriodicTestsHeader','menuPeriodicTestsBody'); });
   document.getElementById('btnConfirmAnnouncementRead').addEventListener('click', confirmAnnouncementRead);
@@ -4147,28 +4286,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnCancelAnnEdit').addEventListener('click', cancelAnnEdit);
   document.getElementById('btnAddPeriodicTest').addEventListener('click', addPeriodicTest);
   document.getElementById('btnCancelPtEdit').addEventListener('click', cancelPtEdit);
-  // Thanh công cụ định dạng (đậm/nghiêng/gạch chân/màu/cỡ chữ) cho ô nội dung module —
-  // dùng execCommand (vẫn hoạt động tốt trên mọi trình duyệt hiện tại cho các thao tác cơ
-  // bản này dù đã bị đánh dấu "deprecated" trong đặc tả kỹ thuật).
-  document.querySelectorAll('.rte-toolbar').forEach(toolbar => {
-    const targetId = toolbar.dataset.rteFor;
-    const editor = document.getElementById(targetId);
-    toolbar.querySelectorAll('.rte-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        editor.focus();
-        document.execCommand(btn.dataset.cmd, false, null);
-      });
-    });
-    const colorInput = toolbar.querySelector('.rte-color');
-    if(colorInput) colorInput.addEventListener('input', () => {
-      editor.focus();
-      document.execCommand('foreColor', false, colorInput.value);
-    });
-    const sizeSelect = toolbar.querySelector('.rte-fontsize');
-    if(sizeSelect) sizeSelect.addEventListener('change', () => {
-      editor.focus();
-      document.execCommand('fontSize', false, sizeSelect.value);
-    });
+  // Nút "+ Thêm khối nội dung" — mỗi khối tự có toolbar + màu nền riêng, được gắn sự kiện
+  // ngay trong createContentBlockElement() khi tạo (không cần gắn lại ở đây).
+  document.querySelectorAll('.add-content-block-btn').forEach(btn => {
+    btn.addEventListener('click', () => addContentBlockUI(btn.dataset.lang));
   });
   document.getElementById('dashPeriodSelect').addEventListener('change', loadDashboardStats);
   document.getElementById('btnDashRefresh').addEventListener('click', loadDashboardStats);
@@ -4208,6 +4329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnSaveModule').addEventListener('click', saveModule);
   document.getElementById('btnCancelModuleEdit').addEventListener('click', clearModuleForm);
   document.getElementById('btnAddFlashcard').addEventListener('click', addFlashcard);
+  document.getElementById('btnCancelFcEdit').addEventListener('click', cancelFcEdit);
   document.getElementById('btnSaveProgramStatus').addEventListener('click', saveProgramStatus);
   document.querySelectorAll('#modLangTabs .pill-tab-btn').forEach(b => b.addEventListener('click', () => switchModuleFormLang(b.dataset.modlang)));
   document.querySelectorAll('#fcLangTabs .pill-tab-btn').forEach(b => b.addEventListener('click', () => switchFlashcardFormLang(b.dataset.fclang)));
