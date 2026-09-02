@@ -132,6 +132,7 @@ export default {
       if (url.pathname === "/api/submit" && request.method === "POST") return handleSubmit(request, env);
       if (url.pathname === "/api/stats" && request.method === "GET") return handleStats(url, env);
       if (url.pathname === "/api/questions" && request.method === "GET") return handleGetQuestions(url, env);
+      if (url.pathname === "/api/questions/count" && request.method === "GET") return handleGetQuestionsCount(url, env);
       if (url.pathname === "/api/program-config" && request.method === "GET") return handleGetProgramConfig(url, env);
       if (url.pathname === "/api/employee/verify" && request.method === "POST") return handleEmployeeVerify(request, env);
       if (url.pathname === "/api/employee/change-password" && request.method === "POST") return handleEmployeeChangePassword(request, env);
@@ -390,6 +391,16 @@ async function handleGetQuestions(url, env) {
   }
   const picked = shuffled.slice(0, limit).map(rowToQuestion);
   return jsonResponse(picked);
+}
+
+// Đếm tổng số câu trong ngân hàng của 1 chương trình — dùng để hiện đúng "trích từ ngân hàng
+// X câu" ở banner bắt đầu làm bài (trước đây bị hard-code cứng số 60 cho mọi chương trình).
+async function handleGetQuestionsCount(url, env) {
+  const programId = url.searchParams.get("programId") ?? "";
+  const row = await env.DB.prepare(
+    "SELECT COUNT(*) AS total FROM question_bank WHERE program_id = ?"
+  ).bind(programId).first();
+  return jsonResponse({ total: row?.total || 0 });
 }
 
 function rowToQuestion(r) {
@@ -780,12 +791,18 @@ async function handleCreatePeriodicTest(request, env) {
   return jsonResponse({ ok: true, id: result.meta.last_row_id });
 }
 async function handleUpdatePeriodicTest(request, env) {
-  const { id, title, content, requiredTitles } = await request.json();
+  const { id, title, content, requiredTitles, linkedProgramId } = await request.json();
   if (!id) return jsonResponse({ error: "Thiếu id" }, 400);
   if (!title || !title.trim()) return jsonResponse({ error: "Thiếu tiêu đề" }, 400);
-  await env.DB.prepare(
-    "UPDATE periodic_tests SET title = ?, content = ?, required_titles = ? WHERE id = ?"
-  ).bind(title.trim(), content || "", JSON.stringify(requiredTitles ?? []), id).run();
+  if (linkedProgramId !== undefined) {
+    await env.DB.prepare(
+      "UPDATE periodic_tests SET title = ?, content = ?, required_titles = ?, linked_program_id = ? WHERE id = ?"
+    ).bind(title.trim(), content || "", JSON.stringify(requiredTitles ?? []), linkedProgramId, id).run();
+  } else {
+    await env.DB.prepare(
+      "UPDATE periodic_tests SET title = ?, content = ?, required_titles = ? WHERE id = ?"
+    ).bind(title.trim(), content || "", JSON.stringify(requiredTitles ?? []), id).run();
+  }
   return jsonResponse({ ok: true });
 }
 // Bài test định kỳ cần 1 "chương trình ẩn" riêng để chứa ngân hàng câu hỏi CHỈ DÀNH cho nó
@@ -1140,7 +1157,7 @@ async function handleProgramDetailExport(url, env) {
   let requiredTitles = [];
   try { requiredTitles = JSON.parse(programRow?.required_titles || "[]"); } catch (e) { /* để rỗng nếu lỗi */ }
 
-  let subQuery = "SELECT employee_id, passed, percentage, submitted_at FROM quiz_submissions WHERE program_id = ?";
+  let subQuery = "SELECT employee_id, passed, percentage, submitted_at, questions FROM quiz_submissions WHERE program_id = ?";
   const binds = [programId];
   if (from) { subQuery += " AND submitted_at >= ?"; binds.push(from); }
   if (to) { subQuery += " AND submitted_at <= ?"; binds.push(to); }
@@ -1155,6 +1172,7 @@ async function handleProgramDetailExport(url, env) {
     return {
       name: e.name, employeeId: e.employee_id, warehouseCode: e.warehouse_code || "", title: e.title || "",
       submitted: !!s, passed: s ? !!s.passed : null, percentage: s ? s.percentage : null, submittedAt: s ? s.submitted_at : null,
+      questions: s ? safeParse(s.questions) : null,
     };
   });
   return jsonResponse({ programName: programRow?.program_name || programId, rows });
@@ -1195,7 +1213,7 @@ async function handlePeriodicTestDetailExport(url, env) {
   try { requiredTitles = JSON.parse(pt.required_titles || "[]"); } catch (e) { /* để rỗng nếu lỗi */ }
 
   const employeesRes = await env.DB.prepare("SELECT * FROM employees").all();
-  let subQuery = "SELECT employee_id, passed, percentage, submitted_at FROM quiz_submissions WHERE periodic_test_id = ?";
+  let subQuery = "SELECT employee_id, passed, percentage, submitted_at, questions FROM quiz_submissions WHERE periodic_test_id = ?";
   const binds = [periodicTestId];
   if (from) { subQuery += " AND submitted_at >= ?"; binds.push(from); }
   if (to) { subQuery += " AND submitted_at <= ?"; binds.push(to); }
@@ -1209,6 +1227,7 @@ async function handlePeriodicTestDetailExport(url, env) {
     return {
       name: e.name, employeeId: e.employee_id, warehouseCode: e.warehouse_code || "", title: e.title || "",
       submitted: !!s, passed: s ? !!s.passed : null, percentage: s ? s.percentage : null, submittedAt: s ? s.submitted_at : null,
+      questions: s ? safeParse(s.questions) : null,
     };
   });
   return jsonResponse({ periodicTestTitle: pt.title, rows });

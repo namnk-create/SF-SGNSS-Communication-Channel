@@ -251,7 +251,8 @@ th.donts{background:#FFEBEE;color:#C62828;}
 .exit-screen h2{color:var(--sf-black);font-size:clamp(17px,4.2vw,22px);margin:0 0 10px 0;}
 .exit-screen p{color:var(--sf-dark-grey);font-size:14px;max-width:420px;margin:0 auto;}
 /* ===== EMPLOYEE GATE (cổng nhập tên+ID trước khi vào web) ===== */
-.gate-overlay{position:fixed;inset:0;background:var(--sf-black);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.gate-overlay{position:fixed;inset:0;background:var(--sf-black);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.gate-overlay.gate-visible{display:flex;}
 .gate-box{background:#fff;border-radius:12px;max-width:420px;width:100%;padding:28px 24px;text-align:center;}
 .gate-logo-img{height:64px;width:auto;display:block;margin:0 auto 14px;}
 .gate-box h2{color:var(--sf-black);font-size:18px;margin:0 0 6px 0;}
@@ -352,6 +353,7 @@ th.donts{background:#FFEBEE;color:#C62828;}
           <div class="menu-accordion-body" id="menuPeriodicTestsBody" style="display:none;"></div>
           <div class="dropdown-item" id="menuItemTimesheet" style="border-top:2px solid var(--sf-border);display:none;"><span class="di-icon">🕒</span><span>Vận hành & Đánh giá SSM/SGNSS</span></div>
           <div class="dropdown-item" id="menuItemAdmin" style="border-top:2px solid var(--sf-border);"><span class="di-icon">🔐</span><span>Admin</span></div>
+          <div class="dropdown-item" id="menuItemLogout" style="color:var(--fail-red);"><span class="di-icon">🚪</span><span>Thoát khỏi chương trình</span></div>
         </div>
       </div>
       <div class="lang-switcher" id="langSwitcher">
@@ -755,19 +757,21 @@ th.donts{background:#FFEBEE;color:#C62828;}
           <div class="admin-hint">Hiện dạng danh sách xổ ngay trong hamburger menu ở trang chủ, mục mới nhất luôn nằm trên cùng. Nhân viên bấm vào 1 thông báo sẽ mở trang chi tiết và cần bấm "Xác nhận đã đọc" để công ty theo dõi được ai đã nắm thông tin. Không giới hạn độ dài nội dung.</div>
           <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th>Nội dung</th><th></th></tr></thead><tbody id="announcementTableBody"></tbody></table>
           <div class="admin-row"><input type="text" id="newAnnTitle" placeholder="Tiêu đề thông báo"></div>
-          <div class="admin-row"><textarea id="newAnnContent" placeholder="Nội dung chi tiết (không giới hạn độ dài)" style="min-height:120px;"></textarea></div>
-          <div class="admin-row">
-            <button type="button" class="admin-btn-add" id="btnAddAnnouncement" title="Thêm/Cập nhật thông báo">+</button>
+          <div class="content-blocks-container" id="contentBlocksAnn" data-lang="ann"></div>
+          <button type="button" class="btn-secondary add-content-block-btn" data-lang="ann" style="margin-top:6px;padding:8px 14px;font-size:12.5px;">+ Thêm khối nội dung</button>
+          <div class="admin-row" style="margin-top:10px;">
+            <button type="button" class="btn-secondary" id="btnAddAnnouncement" style="background:var(--sf-red);">💾 Lưu thông báo</button>
             <button type="button" class="btn-secondary" id="btnCancelAnnEdit" style="display:none;background:#888;">Hủy sửa</button>
           </div>
 
           <div class="admin-section-title">📅 Bài test định kỳ</div>
-          <div class="admin-hint">Nhập tiêu đề + nội dung/lưu ý cho bài test, sau đó bấm "📝 Thiết lập câu hỏi" để chuyển sang Ngân hàng câu hỏi — mỗi bài test định kỳ có bộ câu hỏi RIÊNG, không dùng chung với các chương trình đào tạo khác.</div>
-          <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th>Nội dung</th><th></th></tr></thead><tbody id="periodicTestTableBody"></tbody></table>
+          <div class="admin-hint">Nhập tiêu đề + nội dung/lưu ý (NV sẽ thấy nội dung này như quy định thi, ngay trước khi bắt đầu làm bài) — sau đó ở bảng bên dưới, chọn 1 đề thi ĐÃ CÓ SẴN trong danh sách rồi bấm "✓ Xác nhận liên kết". Có thể bấm "📝 Soạn câu hỏi" để chuyển sang thêm/sửa câu hỏi cho đúng đề đang chọn.</div>
+          <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th>Nội dung</th><th>Liên kết đề thi</th></tr></thead><tbody id="periodicTestTableBody"></tbody></table>
           <div class="admin-row"><input type="text" id="newPtTitle" placeholder="Tiêu đề bài test định kỳ"></div>
-          <div class="admin-row"><textarea id="newPtContent" placeholder="Nội dung thông báo và những điểm lưu ý (không giới hạn độ dài)" style="min-height:120px;"></textarea></div>
-          <div class="admin-row">
-            <button type="button" class="admin-btn-add" id="btnAddPeriodicTest" title="Thêm/Cập nhật bài test định kỳ">+</button>
+          <div class="content-blocks-container" id="contentBlocksPt" data-lang="pt"></div>
+          <button type="button" class="btn-secondary add-content-block-btn" data-lang="pt" style="margin-top:6px;padding:8px 14px;font-size:12.5px;">+ Thêm khối nội dung</button>
+          <div class="admin-row" style="margin-top:10px;">
+            <button type="button" class="btn-secondary" id="btnAddPeriodicTest" style="background:var(--sf-red);">💾 Lưu bài test định kỳ</button>
             <button type="button" class="btn-secondary" id="btnCancelPtEdit" style="display:none;background:#888;">Hủy sửa</button>
           </div>
         </div>
@@ -796,6 +800,12 @@ th.donts{background:#FFEBEE;color:#C62828;}
     </div>
   </div>
   <div id="modules-container"></div>
+  <!-- "Quy định thi" — nội dung bài test định kỳ (nếu đang làm qua ?pt=<id>), hiện NGAY TRƯỚC
+       khi NV bắt đầu làm bài, giống như phổ biến quy chế thi trước giờ vào phòng thi. -->
+  <div id="periodicTestRulesBox" style="display:none;background:var(--sf-grey);border-radius:10px;padding:18px;margin-bottom:20px;">
+    <h3 style="margin:0 0 4px 0;color:var(--sf-red);font-size:16px;">📋 Quy định — <span id="periodicTestRulesTitle"></span></h3>
+    <div id="periodicTestRulesContent" style="font-size:13.5px;line-height:1.7;"></div>
+  </div>
   <!-- KHU VỰC BẮT ĐẦU LÀM BÀI KIỂM TRA -->
   <div class="quiz-start-banner" id="start-banner">
     <img src="assets/truck-banner.jpg" alt="SF Express" class="quiz-banner-img">
@@ -1471,6 +1481,32 @@ let lastStatsResult = null; // cache of last loaded public stats {total,passed,f
 // qua bảng program_config trên D1, lấy về lúc tải trang qua GET /api/program-config.
 // Giữ giá trị mặc định này để trang vẫn chạy được ngay cả khi chưa gọi API kịp.
 let PROGRAM_CONFIG = { questionsPerQuiz: 20, passScore: 16, timeLimitMinutes: 20 };
+// Dựng lại tiêu đề + phụ đề banner "Bắt đầu làm bài" theo ĐÚNG chương trình đang xem và cấu
+// hình thật (Cấu hình bài thi) — trước đây bị hard-code cứng chữ "Kỹ Năng Mềm Logistics" và
+// các số 20/60/80% cho MỌI chương trình, gây sai lệch khi xem chương trình khác.
+function updateQuizBannerText(){
+  const titleEl = document.getElementById('t-quiz-banner-title');
+  const subEl = document.getElementById('t-quiz-sub');
+  if(!titleEl || !subEl) return;
+  const pName = programName(PROGRAM_ID);
+  const titleByLang = {
+    vi: `BÀI KIỂM TRA — ${pName.toUpperCase()}`,
+    en: `TEST — ${pName.toUpperCase()}`,
+    zh: `测试 — ${pName}`,
+  };
+  titleEl.textContent = titleByLang[currentLang] || titleByLang.vi;
+  const q = PROGRAM_CONFIG.questionsPerQuiz;
+  const total = TOTAL_QUESTIONS_IN_BANK || q;
+  const time = PROGRAM_CONFIG.timeLimitMinutes;
+  const pass = PROGRAM_CONFIG.passScore;
+  const passPct = q ? Math.round((pass / q) * 100) : 0;
+  const subByLang = {
+    vi: `Đề thi gồm <strong>${q} câu hỏi ngẫu nhiên</strong> trích từ ngân hàng ${total} câu • Thời gian làm bài <strong>${time} phút</strong> • Đạt tối thiểu <strong>${passPct}% (${pass}/${q})</strong> để hoàn thành.`,
+    en: `The test contains <strong>${q} random questions</strong> from a bank of ${total} • Time limit <strong>${time} minutes</strong> • Minimum passing score <strong>${passPct}% (${pass}/${q})</strong>.`,
+    zh: `试卷共 <strong>${q}道随机题目</strong>，来自${total}题题库 • 考试时间 <strong>${time}分钟</strong> • 及格线 <strong>${passPct}%（${pass}/${q}）</strong>。`,
+  };
+  subEl.innerHTML = subByLang[currentLang] || subByLang.vi;
+}
 // Danh sách chương trình đào tạo — giờ được nạp ĐỘNG từ D1 (bảng program_config) qua
 // GET /api/admin/programs, để Admin có thể tự thêm/bớt chương trình ngay trên giao diện
 // (xem loadPrograms(), addProgram(), removeProgram() ở phần Admin phía dưới). Biến này chỉ
@@ -1687,8 +1723,7 @@ function renderUIText(lang){
   document.getElementById('t-lbl-id').textContent = t.lblID;
   document.getElementById('driverName').placeholder = t.phName;
   document.getElementById('driverID').placeholder = t.phID;
-  document.getElementById('t-quiz-banner-title').textContent = t.quizBannerTitle;
-  document.getElementById('t-quiz-sub').innerHTML = t.quizSub;
+  updateQuizBannerText();
   document.getElementById('t-btn-start').textContent = t.btnStart;
   document.getElementById('t-btn-submit').textContent = t.btnSubmit;
   document.getElementById('t-rating-label').textContent = t.ratingLabel;
@@ -2204,17 +2239,17 @@ function initEmployeeGate(){
       if(GATE_EMPLOYEE && GATE_EMPLOYEE.mustChangePassword){
         sessionStorage.removeItem('sf_gate_employee');
         GATE_EMPLOYEE = null;
-        document.getElementById('employeeGate').style.display = 'flex';
+        document.getElementById('employeeGate').classList.add('gate-visible');
         return;
       }
       applyGateEmployee();
       return;
     }catch(e){ sessionStorage.removeItem('sf_gate_employee'); }
   }
-  document.getElementById('employeeGate').style.display = 'flex';
+  document.getElementById('employeeGate').classList.add('gate-visible');
 }
 function applyGateEmployee(){
-  document.getElementById('employeeGate').style.display = 'none';
+  document.getElementById('employeeGate').classList.remove('gate-visible');
   // Lần đăng nhập đầu tiên (mật khẩu vẫn là mặc định = Mã NV) — chặn hẳn vào trang chính,
   // bắt buộc đổi mật khẩu trước, không có cách nào bỏ qua bước này.
   if(GATE_EMPLOYEE && GATE_EMPLOYEE.mustChangePassword){
@@ -2334,6 +2369,7 @@ function updateExtractButtonVisibility(){
   const isAdmin = !!sessionStorage.getItem('sf_admin_token');
   btn.style.display = (canByEmployee || isAdmin) ? 'block' : 'none';
 }
+let TOTAL_QUESTIONS_IN_BANK = 0;
 async function loadProgramConfigPublic(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/program-config?programId=${encodeURIComponent(PROGRAM_ID)}`);
@@ -2346,6 +2382,14 @@ async function loadProgramConfigPublic(){
   }catch(err){
     console.error('Không tải được cấu hình chương trình, dùng giá trị mặc định.', err);
   }
+  try{
+    const res2 = await fetch(`${WORKER_BASE_URL}/api/questions/count?programId=${encodeURIComponent(PROGRAM_ID)}`);
+    const data2 = await res2.json();
+    TOTAL_QUESTIONS_IN_BANK = data2.total || 0;
+  }catch(err){
+    console.error('Không tải được tổng số câu hỏi trong ngân hàng.', err);
+  }
+  updateQuizBannerText();
 }
 // Với Kỹ Năng Mềm (PROGRAM_ID rỗng), GIỮ NGUYÊN nội dung mẫu có sẵn (mảng MODULES cứng đã
 // viết công phu từ trước) — không đổi gì, không gọi API. Với các chương trình khác do Admin
@@ -2388,6 +2432,13 @@ async function loadDynamicMenu(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/programs`);
     const rows = await res.json();
+    // Cập nhật PROGRAMS toàn cục (trước đây chỉ được cập nhật ở phía Admin qua loadPrograms())
+    // — để hàm programName() trả đúng tên chương trình ngay cả ở trang công khai (NV xem),
+    // ví dụ dùng cho tiêu đề banner "Bắt đầu làm bài".
+    if(Array.isArray(rows) && rows.length){
+      PROGRAMS = rows.map(r => ({ id: r.program_id, name: r.program_name, status: r.status || 'coming_soon' }));
+      updateQuizBannerText(); // làm mới lại banner ngay khi đã biết đúng tên chương trình
+    }
     const container = document.getElementById('dynamicMenuItems');
     if(!container) return;
     container.innerHTML = '';
@@ -2445,11 +2496,12 @@ async function loadAnnouncementsMenu(){
     });
   }catch(err){ console.error('Lỗi tải thông báo:', err); }
 }
+let periodicTestsMenuCache = [];
 async function loadPeriodicTestsMenu(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/periodic-tests`);
-    const rows = await res.json();
-    renderMenuAccordionList(document.getElementById('menuPeriodicTestsBody'), rows, (r) => {
+    periodicTestsMenuCache = await res.json();
+    renderMenuAccordionList(document.getElementById('menuPeriodicTestsBody'), periodicTestsMenuCache, (r) => {
       // Bài test định kỳ luôn gắn với 1 chương trình có sẵn — bấm vào là chuyển thẳng sang
       // làm bài của đúng chương trình đó (dùng lại Ngân hàng câu hỏi + Cấu hình bài thi).
       if(r.linked_program_id === null || r.linked_program_id === undefined){
@@ -2462,7 +2514,20 @@ async function loadPeriodicTestsMenu(){
       url.searchParams.set('pt', r.id);
       location.href = url.toString();
     });
+    showPeriodicTestRulesIfNeeded();
   }catch(err){ console.error('Lỗi tải bài test định kỳ:', err); }
+}
+// Nếu đang vào trang qua link "Bài test định kỳ" (?pt=<id>), hiện nội dung/lưu ý của đúng
+// bài test đó như "quy định thi" ngay phía trên, TRƯỚC khi NV bấm nút bắt đầu làm bài.
+function showPeriodicTestRulesIfNeeded(){
+  if(!PERIODIC_TEST_ID) return;
+  const pt = periodicTestsMenuCache.find(r => String(r.id) === String(PERIODIC_TEST_ID));
+  if(!pt) return;
+  const html = renderBlocksToHtml(pt.content);
+  if(!html) return;
+  document.getElementById('periodicTestRulesTitle').textContent = pt.title;
+  document.getElementById('periodicTestRulesContent').innerHTML = html;
+  document.getElementById('periodicTestRulesBox').style.display = 'block';
 }
 function toggleMenuAccordion(headerId, bodyId){
   const header = document.getElementById(headerId);
@@ -2480,7 +2545,7 @@ async function showAnnouncementDetail(id){
   document.getElementById('announcementDetailScreen').style.display = 'block';
   document.getElementById('annDetailDate').textContent = toVNTimeString(ann.created_at);
   document.getElementById('annDetailTitle').textContent = ann.title;
-  document.getElementById('annDetailContent').textContent = ann.content || '(Không có nội dung chi tiết)';
+  document.getElementById('annDetailContent').innerHTML = renderBlocksToHtml(ann.content) || '(Không có nội dung chi tiết)';
   window.scrollTo(0, 0);
 
   const statusEl = document.getElementById('annDetailReadStatus');
@@ -2810,6 +2875,8 @@ async function loadAdminDashboardData(){
   loadStorageInfo();
   loadAnnouncementsAdmin();
   loadPeriodicTestsAdmin();
+  if(!document.querySelector('#contentBlocksAnn .content-block')) setContentBlocksData('ann', []);
+  if(!document.querySelector('#contentBlocksPt .content-block')) setContentBlocksData('pt', []);
   loadDashboardStats();
 }
 /* ================================================================
@@ -2940,6 +3007,25 @@ function statusLabel(row){
   if(!row.submitted) return 'Chưa làm bài';
   return row.passed ? 'Đạt' : 'Chưa đạt';
 }
+// Dựng sheet 2 "ChiTietCauTraLoi" — từng câu hỏi của TỪNG người đã làm bài (bỏ qua người
+// chưa làm vì không có dữ liệu câu trả lời) — giống hệt format đã dùng cho nút Extract Data
+// gốc ở trang thống kê Kỹ Năng Mềm.
+function buildAnswerDetailRows(rows){
+  const detailRows = [];
+  rows.forEach(r => {
+    if(!r.submitted || !Array.isArray(r.questions)) return;
+    r.questions.forEach((q, idx) => {
+      detailRows.push({
+        'Tên NV': r.name, 'Mã NV': r.employeeId, 'Kho': r.warehouseCode, 'Chức danh': r.title,
+        'Thời gian nộp (giờ VN)': toVNTimeString(r.submittedAt),
+        'Câu số': idx + 1, 'Module': q.module, 'Nội dung câu hỏi': q.question,
+        'Đáp án đã chọn': q.selectedText || '(chưa chọn)', 'Đáp án đúng': q.correctText,
+        'Kết quả': q.isCorrect ? 'Đúng' : 'Sai',
+      });
+    });
+  });
+  return detailRows;
+}
 async function exportProgramDetail(programId){
   const token = adminToken();
   try{
@@ -2952,9 +3038,14 @@ async function exportProgramDetail(programId){
       'Tên NV': r.name, 'Mã NV': r.employeeId, 'Kho': r.warehouseCode, 'Chức danh': r.title,
       'Trạng thái': statusLabel(r), 'Điểm (%)': r.percentage ?? '', 'Thời gian nộp (giờ VN)': r.submittedAt ? toVNTimeString(r.submittedAt) : '',
     }));
-    const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'ChiTiet');
+    const ws1 = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws1, 'ChiTiet');
+    const detailRows = buildAnswerDetailRows(data.rows);
+    if(detailRows.length){
+      const ws2 = XLSX.utils.json_to_sheet(detailRows);
+      XLSX.utils.book_append_sheet(wb, ws2, 'ChiTietCauTraLoi');
+    }
     XLSX.writeFile(wb, `ChiTiet_${(data.programName||'ChuongTrinh').replace(/[^\w]+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }catch(err){
     console.error('Lỗi trích xuất chi tiết chương trình:', err);
@@ -2992,9 +3083,14 @@ async function exportPeriodicTestDetail(periodicTestId){
       'Tên NV': r.name, 'Mã NV': r.employeeId, 'Kho': r.warehouseCode, 'Chức danh': r.title,
       'Trạng thái': statusLabel(r), 'Điểm (%)': r.percentage ?? '', 'Thời gian nộp (giờ VN)': r.submittedAt ? toVNTimeString(r.submittedAt) : '',
     }));
-    const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'ChiTiet');
+    const ws1 = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws1, 'ChiTiet');
+    const detailRows = buildAnswerDetailRows(data.rows);
+    if(detailRows.length){
+      const ws2 = XLSX.utils.json_to_sheet(detailRows);
+      XLSX.utils.book_append_sheet(wb, ws2, 'ChiTietCauTraLoi');
+    }
     XLSX.writeFile(wb, `ChiTiet_BaiTestDinhKy_${(data.periodicTestTitle||'').replace(/[^\w]+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }catch(err){
     console.error('Lỗi trích xuất chi tiết bài test định kỳ:', err);
@@ -3218,6 +3314,17 @@ function parseContentBlocksRaw(raw){
     if(Array.isArray(parsed)) return parsed;
   }catch(e){ /* không phải JSON -> rơi xuống coi là HTML thô kiểu cũ */ }
   return [{ html: raw, bgColor: '#FFFFFF' }];
+}
+// Render mảng khối [{html, bgColor}] thành HTML hiển thị công khai cho NV — mỗi khối có màu
+// nền riêng (nếu khác trắng). Dùng chung cho màn hình chi tiết thông báo và phần "quy định
+// thi" hiện trước khi làm bài test định kỳ.
+function renderBlocksToHtml(raw){
+  const blocks = parseContentBlocksRaw(raw);
+  return blocks.filter(b => b.html && b.html.trim()).map(b => {
+    const bgStyle = (b.bgColor && b.bgColor.toLowerCase() !== '#ffffff')
+      ? `background:${b.bgColor};padding:12px 14px;border-radius:8px;` : '';
+    return `<div style="${bgStyle}margin-bottom:10px;">${b.html}</div>`;
+  }).join('');
 }
 function createContentBlockElement(lang, blockData){
   const div = document.createElement('div');
@@ -3544,7 +3651,7 @@ function editAnnouncement(id){
       if(!a) return;
       editingAnnouncementId = id;
       document.getElementById('newAnnTitle').value = a.title;
-      document.getElementById('newAnnContent').value = a.content || '';
+      setContentBlocksData('ann', parseContentBlocksRaw(a.content));
       document.getElementById('btnCancelAnnEdit').style.display = 'inline-block';
       document.getElementById('newAnnTitle').scrollIntoView({behavior:'smooth', block:'center'});
       flashHighlight(document.getElementById('newAnnTitle'));
@@ -3553,14 +3660,14 @@ function editAnnouncement(id){
 function cancelAnnEdit(){
   editingAnnouncementId = null;
   document.getElementById('newAnnTitle').value = '';
-  document.getElementById('newAnnContent').value = '';
+  setContentBlocksData('ann', []);
   document.getElementById('btnCancelAnnEdit').style.display = 'none';
 }
 async function addAnnouncement(){
   const msgEl = document.getElementById('annMsg');
   msgEl.textContent = '';
   const title = document.getElementById('newAnnTitle').value.trim();
-  const content = document.getElementById('newAnnContent').value.trim();
+  const content = JSON.stringify(getContentBlocksData('ann'));
   if(!title){ msgEl.textContent = 'Vui lòng nhập tiêu đề.'; msgEl.style.color = 'var(--fail-red)'; return; }
   const token = adminToken();
   try{
@@ -3613,26 +3720,35 @@ function renderPeriodicTestTable(rows){
   tbody.innerHTML = '';
   rows.forEach(r => {
     const tr = document.createElement('tr');
-    const full = r.content || '';
+    const full = summarizeBlocksContent(r.content);
     const shortContent = full.length > 60 ? full.slice(0,60) + '…' : full;
+    const options = ['<option value="">-- Chưa liên kết đề thi --</option>']
+      .concat(PROGRAMS.map(p => `<option value="${escUser(p.id)}" ${r.linked_program_id === p.id ? 'selected' : ''}>${escUser(p.name)}</option>`));
     tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(r.title)}</td><td>${escUser(shortContent) || '<span style="color:#999;">(trống)</span>'}</td>
-      <td style="white-space:nowrap;">
-        <button type="button" class="icon-btn-edit" data-pt-edit="${r.id}" title="Sửa">✏️</button>
-        <button type="button" class="icon-btn-del" data-pt-del="${r.id}" title="Xóa">🗑️</button><br>
-        <button type="button" class="btn-secondary" data-pt-setup="${r.id}" style="padding:5px 8px;font-size:11px;margin-top:4px;">📝 Thiết lập câu hỏi</button>
+      <td style="min-width:220px;">
+        <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px;">
+          <button type="button" class="icon-btn-edit" data-pt-edit="${r.id}" title="Sửa">✏️</button>
+          <button type="button" class="icon-btn-del" data-pt-del="${r.id}" title="Xóa">🗑️</button>
+        </div>
+        <select data-pt-linkselect="${r.id}" style="width:100%;font-size:11.5px;padding:4px;margin-bottom:4px;">${options.join('')}</select>
+        <div style="display:flex;gap:4px;">
+          <button type="button" class="btn-secondary" data-pt-linksave="${r.id}" style="padding:4px 8px;font-size:11px;">✓ Xác nhận liên kết</button>
+          <button type="button" class="btn-secondary" data-pt-goedit="${r.id}" style="padding:4px 8px;font-size:11px;" title="Chuyển sang soạn câu hỏi cho đề đang chọn">📝 Soạn câu hỏi</button>
+        </div>
       </td>`;
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll('[data-pt-edit]').forEach(b => b.addEventListener('click', () => editPeriodicTest(parseInt(b.dataset.ptEdit,10))));
   tbody.querySelectorAll('[data-pt-del]').forEach(b => b.addEventListener('click', () => deletePeriodicTest(parseInt(b.dataset.ptDel,10))));
-  tbody.querySelectorAll('[data-pt-setup]').forEach(b => b.addEventListener('click', () => setupPeriodicTestQuestions(parseInt(b.dataset.ptSetup,10))));
+  tbody.querySelectorAll('[data-pt-linksave]').forEach(b => b.addEventListener('click', () => savePeriodicTestLink(parseInt(b.dataset.ptLinksave,10))));
+  tbody.querySelectorAll('[data-pt-goedit]').forEach(b => b.addEventListener('click', () => goEditPeriodicTestQuestions(parseInt(b.dataset.ptGoedit,10))));
 }
 function editPeriodicTest(id){
   const t = periodicTestsCache.find(r => r.id === id);
   if(!t) return;
   editingPeriodicTestId = id;
   document.getElementById('newPtTitle').value = t.title;
-  document.getElementById('newPtContent').value = t.content || '';
+  setContentBlocksData('pt', parseContentBlocksRaw(t.content));
   document.getElementById('btnCancelPtEdit').style.display = 'inline-block';
   document.getElementById('newPtTitle').scrollIntoView({behavior:'smooth', block:'center'});
   flashHighlight(document.getElementById('newPtTitle'));
@@ -3640,14 +3756,14 @@ function editPeriodicTest(id){
 function cancelPtEdit(){
   editingPeriodicTestId = null;
   document.getElementById('newPtTitle').value = '';
-  document.getElementById('newPtContent').value = '';
+  setContentBlocksData('pt', []);
   document.getElementById('btnCancelPtEdit').style.display = 'none';
 }
 async function addPeriodicTest(){
   const msgEl = document.getElementById('annMsg');
   msgEl.textContent = '';
   const title = document.getElementById('newPtTitle').value.trim();
-  const content = document.getElementById('newPtContent').value.trim();
+  const content = JSON.stringify(getContentBlocksData('pt'));
   if(!title){ msgEl.textContent = 'Vui lòng nhập tiêu đề bài test định kỳ.'; msgEl.style.color = 'var(--fail-red)'; return; }
   const token = adminToken();
   try{
@@ -3664,7 +3780,7 @@ async function addPeriodicTest(){
       });
     }
     if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
-    msgEl.textContent = editingPeriodicTestId ? '✅ Đã cập nhật bài test định kỳ.' : '✅ Đã thêm bài test định kỳ — bấm "📝 Thiết lập câu hỏi" ở dòng vừa tạo để soạn đề.';
+    msgEl.textContent = editingPeriodicTestId ? '✅ Đã cập nhật bài test định kỳ.' : '✅ Đã thêm bài test định kỳ — chọn 1 đề thi có sẵn ở dòng vừa tạo rồi bấm "Xác nhận liên kết".';
     msgEl.style.color = 'var(--pass-green)';
     flashHighlight(msgEl);
     cancelPtEdit();
@@ -3677,45 +3793,62 @@ async function addPeriodicTest(){
   }
 }
 async function deletePeriodicTest(id){
-  if(!confirm('Xóa bài test định kỳ này? (Ngân hàng câu hỏi riêng của nó sẽ KHÔNG bị xóa, chỉ ẩn khỏi danh sách này.)')) return;
+  if(!confirm('Xóa bài test định kỳ này? (Ngân hàng câu hỏi của chương trình đã liên kết sẽ KHÔNG bị xóa, chỉ gỡ liên kết.)')) return;
   const token = adminToken();
   await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests?id=${id}`, { method: 'DELETE', headers: {'Authorization': 'Bearer ' + token} });
   if(editingPeriodicTestId === id) cancelPtEdit();
   loadPeriodicTestsAdmin();
   loadPeriodicTestsMenu();
 }
-// Bấm "📝 Thiết lập câu hỏi": tự động tạo (nếu chưa có) 1 "chương trình ẩn" riêng cho bài test
-// định kỳ này, rồi chuyển thẳng Admin sang tab "Ngân hàng câu hỏi" đã chọn sẵn đúng chương
-// trình ẩn đó — ngân hàng câu hỏi ở đây KHÔNG lẫn với bất kỳ chương trình đào tạo nào khác.
-async function setupPeriodicTestQuestions(id){
+// Chọn 1 đề thi/chương trình CÓ SẴN trong dropdown rồi bấm "Xác nhận liên kết" — gán thẳng
+// linked_program_id, không cần tự tạo chương trình ẩn mới nữa (đơn giản hơn nhiều so với
+// trước đây, đúng theo yêu cầu: có thể chọn lại đề đã tạo từ trước, VD "Đề thi nghiệp vụ...").
+async function savePeriodicTestLink(id){
+  const t = periodicTestsCache.find(r => r.id === id);
+  if(!t) return;
+  const sel = document.querySelector(`[data-pt-linkselect="${id}"]`);
+  const linkedProgramId = sel.value;
   const token = adminToken();
+  const msgEl = document.getElementById('annMsg');
   try{
-    const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests/ensure-program`, {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-      body: JSON.stringify({ periodicTestId: id })
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests`, {
+      method: 'PUT', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+      body: JSON.stringify({ id, title: t.title, content: t.content, linkedProgramId: linkedProgramId || null })
     });
-    const data = await res.json();
-    if(!res.ok){ alert(data.error || 'Không thiết lập được.'); return; }
-    await loadPrograms(); // nạp lại danh sách để chương trình ẩn vừa tạo xuất hiện trong PROGRAMS
-    renderQBankProgramTabs();
-    renderContentProgramTabs();
-    renderDataProgramTabs();
-    populateConfigProgramSelect();
-    setCurrentAdminProgram(data.programId);
-    switchAdminTab('questions');
-    document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'questions'));
+    if(!res.ok){ const d = await res.json(); alert(d.error || 'Không liên kết được.'); return; }
+    msgEl.textContent = linkedProgramId ? `✅ Đã liên kết "${t.title}" với đề thi "${programName(linkedProgramId)}".` : `✅ Đã gỡ liên kết đề thi của "${t.title}".`;
+    msgEl.style.color = 'var(--pass-green)';
+    flashHighlight(msgEl);
+    loadPeriodicTestsAdmin();
   }catch(err){
-    console.error('Lỗi thiết lập câu hỏi cho bài test định kỳ:', err);
+    console.error('Lỗi liên kết bài test định kỳ:', err);
     alert('Không kết nối được máy chủ.');
   }
 }
+// Chuyển sang tab Ngân hàng câu hỏi của đúng đề đang được chọn trong dropdown (dù đã lưu
+// liên kết hay chưa) — để soạn/thêm câu hỏi ngay, đáp ứng cả luồng "chọn rồi sang soạn luôn".
+function goEditPeriodicTestQuestions(id){
+  const sel = document.querySelector(`[data-pt-linkselect="${id}"]`);
+  const programId = sel.value;
+  if(!programId){ alert('Vui lòng chọn 1 đề thi trong danh sách trước.'); return; }
+  setCurrentAdminProgram(programId);
+  switchAdminTab('questions');
+  document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'questions'));
+}
 // Hàm render bảng dùng chung — hỗ trợ cả Sửa (onEdit, tùy chọn) và Xóa (onDelete).
+// Tóm tắt nội dung dạng khối JSON (dùng cho Thông báo/Bài test định kỳ) thành 1 dòng text
+// thuần để hiện trong bảng xem trước — bỏ hết thẻ HTML, nối các khối lại, cắt ngắn nếu dài.
+function summarizeBlocksContent(raw){
+  const blocks = parseContentBlocksRaw(raw);
+  const plain = blocks.map(b => (b.html || '').replace(/<[^>]+>/g, ' ')).join(' ').replace(/\s+/g, ' ').trim();
+  return plain;
+}
 function renderAdminListTable(tbodyId, rows, onDelete, onEdit){
   const tbody = document.getElementById(tbodyId);
   tbody.innerHTML = '';
   rows.forEach(r => {
     const tr = document.createElement('tr');
-    const full = r.content || '';
+    const full = summarizeBlocksContent(r.content);
     const shortContent = full.length > 60 ? full.slice(0,60) + '…' : full;
     const editBtnHtml = onEdit ? `<button type="button" class="icon-btn-edit" data-edit-id="${r.id}" title="Sửa">✏️</button>` : '';
     tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(r.title)}</td><td>${escUser(shortContent) || '<span style="color:#999;">(trống)</span>'}</td>
@@ -4448,6 +4581,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ----- Admin: mở/đóng modal -----
   document.getElementById('menuItemTimesheet').addEventListener('click', () => { location.href = 'timesheet.html'; });
   document.getElementById('menuItemAdmin').addEventListener('click', () => { toggleMenu(true); openAdminModal(); });
+  document.getElementById('menuItemLogout').addEventListener('click', () => {
+    toggleMenu(true);
+    if(!confirm('Thoát khỏi chương trình? Bạn sẽ cần đăng nhập lại (Mã NV + Mật khẩu) để vào lại.')) return;
+    sessionStorage.removeItem('sf_gate_employee');
+    location.reload();
+  });
   document.getElementById('menuProgramsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuProgramsHeader','dynamicMenuItems'); });
   document.getElementById('menuAnnouncementsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuAnnouncementsHeader','menuAnnouncementsBody'); });
   document.getElementById('menuPeriodicTestsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuPeriodicTestsHeader','menuPeriodicTestsBody'); });
@@ -4505,6 +4644,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('#modLangTabs .pill-tab-btn').forEach(b => b.addEventListener('click', () => switchModuleFormLang(b.dataset.modlang)));
   document.querySelectorAll('#fcLangTabs .pill-tab-btn').forEach(b => b.addEventListener('click', () => switchFlashcardFormLang(b.dataset.fclang)));
 
+  // Kiểm tra đăng nhập NGAY LẬP TỨC (không đợi loadModulesForPublic hay bất kỳ lệnh async nào
+  // khác) — tránh hiện chớp màn hình đăng nhập vài giây rồi tự ẩn khi NV thực ra đã đăng nhập
+  // từ trước (session còn lưu trong sessionStorage).
+  initEmployeeGate();
+
   await loadModulesForPublic(); // với chương trình khác Kỹ Năng Mềm, nạp nội dung thật từ D1 trước khi vẽ
   renderAll('vi');
   loadPublicStats();
@@ -4512,7 +4656,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadDynamicMenu();
   loadAnnouncementsMenu();
   loadPeriodicTestsMenu();
-  initEmployeeGate();
 });
 </script>
 </body>
