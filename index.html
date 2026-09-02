@@ -318,6 +318,7 @@ th.donts{background:#FFEBEE;color:#C62828;}
             <span class="di-icon">📅</span><span>Bài test định kỳ</span><span class="accordion-chevron">▾</span>
           </div>
           <div class="menu-accordion-body" id="menuPeriodicTestsBody" style="display:none;"></div>
+          <div class="dropdown-item" id="menuItemTimesheet" style="border-top:2px solid var(--sf-border);"><span class="di-icon">🕒</span><span>Vận hành & Đánh giá SSM/SGNSS</span></div>
           <div class="dropdown-item" id="menuItemAdmin" style="border-top:2px solid var(--sf-border);"><span class="di-icon">🔐</span><span>Admin</span></div>
         </div>
       </div>
@@ -3630,6 +3631,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnExtractData').addEventListener('click', extractData);
 
   // ----- Admin: mở/đóng modal -----
+  document.getElementById('menuItemTimesheet').addEventListener('click', () => { location.href = 'timesheet.html'; });
   document.getElementById('menuItemAdmin').addEventListener('click', () => { toggleMenu(true); openAdminModal(); });
   document.getElementById('menuAnnouncementsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuAnnouncementsHeader','menuAnnouncementsBody'); });
   document.getElementById('menuPeriodicTestsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuPeriodicTestsHeader','menuPeriodicTestsBody'); });
