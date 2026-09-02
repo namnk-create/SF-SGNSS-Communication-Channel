@@ -870,7 +870,7 @@ async function handleEmployeeVerify(request, env) {
   // Mật khẩu MẶC ĐỊNH = chính Mã NV (cho tới khi NV tự đổi lần đầu). Lưu dạng thô (không mã
   // hóa) theo đúng yêu cầu — để Admin xem/hỗ trợ được khi NV quên mật khẩu.
   const currentPassword = row.password_plain || row.employee_id;
-  if (password !== currentPassword) {
+  if (password.trim() !== currentPassword) {
     return jsonResponse({ ok: false, error: "Mật khẩu không đúng." }, 401);
   }
   return jsonResponse({
@@ -891,14 +891,15 @@ async function handleEmployeeVerify(request, env) {
 async function handleEmployeeChangePassword(request, env) {
   const { employeeId, currentPassword, newPassword } = await request.json();
   if (!employeeId || !currentPassword || !newPassword) return jsonResponse({ error: "Thiếu dữ liệu" }, 400);
-  if (newPassword.length < 6) return jsonResponse({ error: "Mật khẩu mới cần tối thiểu 6 ký tự." }, 400);
+  const newPasswordTrimmed = newPassword.trim();
+  if (newPasswordTrimmed.length < 6) return jsonResponse({ error: "Mật khẩu mới cần tối thiểu 6 ký tự." }, 400);
   const row = await env.DB.prepare("SELECT * FROM employees WHERE employee_id = ?").bind(employeeId.trim()).first();
   if (!row) return jsonResponse({ error: "Không tìm thấy nhân viên" }, 404);
   const currentStored = row.password_plain || row.employee_id;
-  if (currentPassword !== currentStored) return jsonResponse({ error: "Mật khẩu hiện tại không đúng." }, 401);
+  if (currentPassword.trim() !== currentStored) return jsonResponse({ error: "Mật khẩu hiện tại không đúng." }, 401);
   await env.DB.prepare(
     "UPDATE employees SET password_plain = ?, must_change_password = 0 WHERE employee_id = ?"
-  ).bind(newPassword, employeeId.trim()).run();
+  ).bind(newPasswordTrimmed, employeeId.trim()).run();
   return jsonResponse({ ok: true });
 }
 
