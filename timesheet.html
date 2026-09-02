@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Vận Hành & Đánh Giá SSM/SGNSS - SF Express</title>
+<style>
+:root{
+  --sf-red:#E11B22; --sf-black:#231F20; --sf-grey:#F4F4F4; --sf-border:#E0E0E0;
+  --sf-dark-grey:#333333; --pass-green:#2E7D32; --fail-red:#C62828;
+  --info-blue:#1565C0; --info-bg:#E3F2FD;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.6; color:var(--sf-dark-grey); background:#F8F9FA; margin:0; padding:clamp(8px,3vw,20px);
+}
+.container{max-width:900px;margin:0 auto;background:#FFF;padding:clamp(14px,4vw,30px);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.08);}
+.header{text-align:center;border-bottom:3px solid var(--sf-red);padding-bottom:16px;margin-bottom:20px;}
+.brand-logo-word{font-weight:900;font-size:20px;letter-spacing:2px;color:var(--sf-red);}
+.brand-title{color:var(--sf-black);font-size:clamp(16px,4.4vw,22px);font-weight:800;margin:8px 0 0;text-transform:uppercase;}
+.brand-subtitle{color:var(--sf-dark-grey);font-size:13px;margin-top:6px;}
+.back-link{display:inline-block;margin-bottom:14px;font-size:13px;color:var(--sf-red);font-weight:700;text-decoration:none;}
+.gate-overlay{position:fixed;inset:0;background:var(--sf-black);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.gate-box{background:#fff;border-radius:12px;max-width:420px;width:100%;padding:28px 24px;text-align:center;}
+.gate-box h2{color:var(--sf-black);font-size:18px;margin:0 0 6px 0;}
+.gate-box p{color:var(--sf-dark-grey);font-size:13.5px;margin:0 0 18px 0;}
+.gate-box input{width:100%;padding:12px 14px;border:1px solid var(--sf-border);border-radius:6px;font-size:14px;margin-bottom:12px;min-height:46px;}
+.gate-box button{width:100%;background:var(--sf-red);color:#fff;border:none;padding:13px;border-radius:6px;font-weight:800;font-size:15px;cursor:pointer;min-height:48px;}
+.gate-error{display:none;background:#FFEBEE;color:#C62828;border:1px solid #EF9A9A;padding:10px 14px;border-radius:6px;margin-bottom:12px;font-size:13px;font-weight:600;text-align:left;}
+.role-badge{display:inline-block;background:var(--info-bg);color:var(--info-blue);border:1px solid #90CAF9;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700;margin-bottom:14px;}
+.section-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;background:var(--sf-grey);padding:10px;border-radius:8px;}
+.section-tab-btn{background:#fff;border:1px solid var(--sf-border);padding:9px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;}
+.section-tab-btn.active{background:var(--sf-red);color:#fff;border-color:var(--sf-red);}
+.mgr-tabs .section-tab-btn.active{background:var(--info-blue);border-color:var(--info-blue);}
+.mgr-tabs{background:var(--info-bg);border:1px solid #90CAF9;}
+.section-panel{display:none;}
+.section-panel.active{display:block;}
+.section-title{font-size:15px;font-weight:800;color:var(--sf-black);margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--sf-border);}
+.section-title:first-child{border-top:none;padding-top:0;margin-top:0;}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.row input, .row select, .row textarea{padding:9px 10px;border:1px solid var(--sf-border);border-radius:6px;font-size:13px;min-height:38px;flex:1;min-width:120px;}
+.row textarea{min-height:70px;width:100%;}
+.labeled-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:110px;}
+.labeled-field label{font-size:11px;font-weight:700;color:var(--sf-dark-grey);}
+.btn{background:var(--sf-black);color:#fff;border:none;padding:12px 18px;border-radius:6px;font-size:13.5px;font-weight:700;cursor:pointer;min-height:44px;}
+.btn-primary{background:var(--sf-red);}
+.btn-approve{background:var(--pass-green);}
+.btn-reject{background:var(--fail-red);}
+.btn-sm{padding:6px 10px;font-size:12px;min-height:30px;border:none;border-radius:6px;color:#fff;cursor:pointer;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:16px;}
+th{background:var(--sf-grey);text-align:left;padding:7px 8px;border-bottom:2px solid var(--sf-border);white-space:nowrap;}
+td{padding:7px 8px;border-bottom:1px solid var(--sf-border);vertical-align:top;}
+.status-pill{display:inline-block;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;}
+.status-pending{background:#FFF3CD;color:#8D6E00;}
+.status-approved,.status-confirmed,.status-completed{background:#E8F5E9;color:#2E7D32;}
+.status-rejected{background:#FFEBEE;color:#C62828;}
+.status-assigned{background:#E3F2FD;color:#1565C0;}
+.hint{font-size:12px;color:#777;margin-bottom:10px;line-height:1.5;}
+.status-msg{font-size:13px;font-weight:600;margin:8px 0;min-height:18px;}
+@keyframes flashHighlightAnim{0%{background:#FFF3CD;}100%{background:transparent;}}
+.flash-highlight{animation:flashHighlightAnim 1.3s ease;border-radius:6px;}
+</style>
+</head>
+<body>
+
+<div class="gate-overlay" id="employeeGate">
+  <div class="gate-box">
+    <div style="font-weight:900;font-size:22px;color:var(--sf-red);margin-bottom:14px;">SF EXPRESS</div>
+    <h2>Đăng nhập báo cáo thời gian</h2>
+    <p>Nhập đúng Họ tên và Mã nhân viên đã được đăng ký trong hệ thống.</p>
+    <div class="gate-error" id="gateError"></div>
+    <input type="text" id="gateName" placeholder="Họ và tên" autocomplete="off">
+    <input type="text" id="gateId" placeholder="Mã nhân viên" autocomplete="off">
+    <button type="button" id="btnGateSubmit">Vào hệ thống</button>
+  </div>
+</div>
+
+<div class="container" id="mainContent" style="display:none;">
+  <a href="index.html" class="back-link">← Về trang Đào tạo</a>
+  <div class="header">
+    <div class="brand-logo-word">SF EXPRESS</div>
+    <h1 class="brand-title">Vận Hành & Đánh Giá SSM/SGNSS</h1>
+    <div class="brand-subtitle">Báo cáo thời gian, hiệu quả công việc, nghỉ phép, công việc được giao & KPI</div>
+  </div>
+  <div style="text-align:center;">
+    <span class="role-badge" id="roleBadge"></span>
+  </div>
+
+  <div class="section-tabs" id="ssmTabs">
+    <button type="button" class="section-tab-btn active" data-sec="report">🕒 Báo cáo hôm nay</button>
+    <button type="button" class="section-tab-btn" data-sec="leave">🌴 Xin nghỉ phép</button>
+    <button type="button" class="section-tab-btn" data-sec="tasks">📋 Công việc được giao</button>
+    <button type="button" class="section-tab-btn" data-sec="kpi">📈 KPI của tôi</button>
+  </div>
+
+  <div class="section-panel active" id="secReport">
+    <div class="hint">Ghi lại từng khoảng thời gian làm việc trong ngày. Có thể nhập nhiều dòng cho 1 ngày.</div>
+    <div class="status-msg" id="reportMsg"></div>
+    <div class="row">
+      <div class="labeled-field"><label>Ngày</label><input type="date" id="entryDate"></div>
+      <div class="labeled-field"><label>Từ giờ</label><input type="time" id="entryFrom"></div>
+      <div class="labeled-field"><label>Đến giờ</label><input type="time" id="entryTo"></div>
+    </div>
+    <div class="row">
+      <div class="labeled-field">
+        <label>Nhóm công việc</label>
+        <select id="entryCategory">
+          <option value="Vận Hành">Vận Hành</option>
+          <option value="Hỗ trợ khách hàng">Hỗ trợ khách hàng</option>
+          <option value="Họp">Họp</option>
+          <option value="Đào tạo/Training">Đào tạo/Training</option>
+          <option value="Nghỉ giải lao">Nghỉ giải lao</option>
+        </select>
+      </div>
+      <div class="labeled-field"><label>% Hiệu quả</label><input type="number" id="entryEfficiency" min="0" max="100" placeholder="VD: 90"></div>
+    </div>
+    <div class="row"><textarea id="entryErrorNotes" placeholder="Lỗi phát hiện và cách xử lý (nếu có)"></textarea></div>
+    <div class="row"><button type="button" class="btn btn-primary" id="btnAddEntry">+ Thêm dòng báo cáo</button></div>
+    <table><thead><tr><th>Ngày</th><th>Từ - Đến</th><th>Nhóm</th><th>% HQ</th><th>Lỗi/Xử lý</th><th></th></tr></thead><tbody id="entriesTableBody"></tbody></table>
+  </div>
+
+  <div class="section-panel" id="secLeave">
+    <div class="status-msg" id="leaveMsg"></div>
+    <div class="row">
+      <div class="labeled-field"><label>Ngày nghỉ</label><input type="date" id="leaveDate"></div>
+      <div class="labeled-field">
+        <label>Thời lượng</label>
+        <select id="leaveDuration"><option value="full">Cả ngày</option><option value="half">Nửa ngày</option></select>
+      </div>
+    </div>
+    <div class="row"><input type="text" id="leaveReason" placeholder="Lý do (tùy chọn)"></div>
+    <div class="row"><button type="button" class="btn btn-primary" id="btnSubmitLeave">Gửi đơn xin nghỉ</button></div>
+    <table><thead><tr><th>Ngày</th><th>Thời lượng</th><th>Lý do</th><th>Trạng thái</th></tr></thead><tbody id="leaveTableBody"></tbody></table>
+  </div>
+
+  <div class="section-panel" id="secTasks">
+    <div class="status-msg" id="tasksMsg"></div>
+    <table><thead><tr><th>Công việc</th><th>Deadline</th><th>Trạng thái</th><th></th></tr></thead><tbody id="myTasksTableBody"></tbody></table>
+  </div>
+
+  <div class="section-panel" id="secKpi">
+    <div class="hint">Nhập giá trị KPI theo tháng hiện tại. Bấm "Lưu KPI" để cập nhật.</div>
+    <div class="status-msg" id="kpiMsg"></div>
+    <div id="kpiFormWrap"></div>
+    <div class="row"><button type="button" class="btn btn-primary" id="btnSaveKpi">Lưu KPI</button></div>
+  </div>
+
+  <div id="sgnssSection" style="display:none;">
+    <div class="section-title" style="margin-top:30px;">👑 Khu vực quản lý (SGNSS)</div>
+    <div class="section-tabs mgr-tabs" id="mgrTabs">
+      <button type="button" class="section-tab-btn active" data-msec="mgrReports">📊 Báo cáo của SSM</button>
+      <button type="button" class="section-tab-btn" data-msec="mgrLeave">✅ Duyệt nghỉ phép</button>
+      <button type="button" class="section-tab-btn" data-msec="mgrTasks">📤 Giao việc</button>
+      <button type="button" class="section-tab-btn" data-msec="mgrKpi">📈 Quản lý KPI</button>
+    </div>
+
+    <div class="section-panel active" id="mgrReports">
+      <div class="row">
+        <div class="labeled-field"><label>Từ ngày</label><input type="date" id="mgrFrom"></div>
+        <div class="labeled-field"><label>Đến ngày</label><input type="date" id="mgrTo"></div>
+        <button type="button" class="btn" id="btnMgrFilter" style="align-self:flex-end;">Xem</button>
+      </div>
+      <table><thead><tr><th>NV</th><th>Ngày</th><th>Từ - Đến</th><th>Nhóm</th><th>% HQ</th><th>Lỗi/Xử lý</th></tr></thead><tbody id="mgrEntriesTableBody"></tbody></table>
+    </div>
+
+    <div class="section-panel" id="mgrLeave">
+      <div class="status-msg" id="mgrLeaveMsg"></div>
+      <table><thead><tr><th>NV</th><th>Ngày</th><th>Thời lượng</th><th>Lý do</th><th>Trạng thái</th><th></th></tr></thead><tbody id="mgrLeaveTableBody"></tbody></table>
+    </div>
+
+    <div class="section-panel" id="mgrTasks">
+      <div class="status-msg" id="mgrTasksMsg"></div>
+      <div class="row">
+        <select id="taskAssignTo" style="flex:1;"></select>
+        <input type="text" id="taskTitle" placeholder="Tên công việc">
+      </div>
+      <div class="row"><input type="text" id="taskDescription" placeholder="Mô tả chi tiết (tùy chọn)"></div>
+      <div class="row"><input type="datetime-local" id="taskDeadline" style="max-width:220px;"></div>
+      <div class="row"><button type="button" class="btn btn-primary" id="btnAssignTask">Giao việc</button></div>
+      <table><thead><tr><th>NV</th><th>Công việc</th><th>Deadline</th><th>Trạng thái</th></tr></thead><tbody id="mgrTasksTableBody"></tbody></table>
+    </div>
+
+    <div class="section-panel" id="mgrKpi">
+      <div class="status-msg" id="mgrKpiMsg"></div>
+      <div class="section-title">➕ Thêm chỉ số KPI mới</div>
+      <div class="row">
+        <input type="text" id="newKpiName" placeholder="Tên chỉ số KPI">
+        <input type="text" id="newKpiUnit" placeholder="Đơn vị (VD: %, đơn)">
+        <input type="text" id="newKpiTarget" placeholder="Chỉ tiêu (tùy chọn)">
+        <button type="button" class="btn btn-primary" id="btnAddKpiDef">Thêm</button>
+      </div>
+      <table><thead><tr><th>Chỉ số</th><th>Đơn vị</th><th>Chỉ tiêu</th><th></th></tr></thead><tbody id="kpiDefTableBody"></tbody></table>
+      <div class="section-title">📊 KPI theo kỳ (tháng hiện tại)</div>
+      <table><thead><tr><th>NV</th><th>Chỉ số</th><th>Giá trị</th></tr></thead><tbody id="mgrKpiEntriesTableBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORKER_BASE_URL = "https://sfexpress-quiz-worker.nam-nk.workers.dev";
+let GATE_EMPLOYEE = null;
+let kpiDefinitionsCache = [];
+
+function escUser(s){
+  const div = document.createElement('div');
+  div.textContent = s ?? '';
+  return div.innerHTML;
+}
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+function currentPeriod(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function initGate(){
+  const cached = sessionStorage.getItem('sf_gate_employee');
+  if(cached){
+    try{ GATE_EMPLOYEE = JSON.parse(cached); applyGate(); return; }catch(e){ sessionStorage.removeItem('sf_gate_employee'); }
+  }
+  document.getElementById('employeeGate').style.display = 'flex';
+}
+function applyGate(){
+  document.getElementById('employeeGate').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  const isSgnss = GATE_EMPLOYEE.title === 'SGNSS';
+  document.getElementById('roleBadge').textContent = `${GATE_EMPLOYEE.name} (${GATE_EMPLOYEE.employeeId}) — ${isSgnss ? 'SGNSS' : (GATE_EMPLOYEE.title || 'SSM')}`;
+  if(isSgnss){
+    document.getElementById('sgnssSection').style.display = 'block';
+    loadMgrData();
+  }
+  document.getElementById('entryDate').value = todayStr();
+  const now = new Date();
+  document.getElementById('entryFrom').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('leaveDate').value = todayStr();
+  loadMyEntries();
+  loadMyLeaveRequests();
+  loadMyTasks();
+  loadKpiForm();
+}
+async function submitGate(){
+  const name = document.getElementById('gateName').value.trim();
+  const id = document.getElementById('gateId').value.trim();
+  const errEl = document.getElementById('gateError');
+  errEl.style.display = 'none';
+  if(!name || !id){ errEl.textContent = 'Vui lòng nhập đầy đủ Họ tên và Mã nhân viên.'; errEl.style.display = 'block'; return; }
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/employee/verify`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name, employeeId: id })
+    });
+    const data = await res.json();
+    if(!res.ok || !data.ok){ errEl.textContent = data.error || 'Không xác thực được.'; errEl.style.display = 'block'; return; }
+    GATE_EMPLOYEE = data;
+    sessionStorage.setItem('sf_gate_employee', JSON.stringify(data));
+    applyGate();
+  }catch(err){
+    console.error(err);
+    errEl.textContent = 'Không kết nối được máy chủ.';
+    errEl.style.display = 'block';
+  }
+}
+
+function switchSection(sec){
+  document.querySelectorAll('#ssmTabs .section-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.sec === sec));
+  const map = { report: 'secReport', leave: 'secLeave', tasks: 'secTasks', kpi: 'secKpi' };
+  document.querySelectorAll('#secReport, #secLeave, #secTasks, #secKpi').forEach(p => p.classList.remove('active'));
+  document.getElementById(map[sec]).classList.add('active');
+}
+function switchMgrSection(msec){
+  document.querySelectorAll('#mgrTabs .section-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.msec === msec));
+  document.querySelectorAll('#sgnssSection .section-panel').forEach(p => p.classList.toggle('active', p.id === msec));
+}
+
+async function loadMyEntries(){
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/entries?employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`);
+    const rows = await res.json();
+    const tbody = document.getElementById('entriesTableBody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.entry_date}</td><td>${r.from_time} - ${r.to_time}</td><td>${escUser(r.work_category)}</td><td>${r.efficiency_pct ?? ''}</td><td>${escUser(r.error_notes||'')}</td>
+        <td><button type="button" class="btn-sm btn-reject" data-del-entry="${r.id}">Xóa</button></td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-del-entry]').forEach(b => b.addEventListener('click', () => deleteEntry(parseInt(b.dataset.delEntry,10))));
+  }catch(err){ console.error('Lỗi tải báo cáo:', err); }
+}
+async function addEntry(){
+  const msgEl = document.getElementById('reportMsg');
+  msgEl.textContent = '';
+  const entryDate = document.getElementById('entryDate').value;
+  const fromTime = document.getElementById('entryFrom').value;
+  const toTime = document.getElementById('entryTo').value;
+  const workCategory = document.getElementById('entryCategory').value;
+  const effVal = document.getElementById('entryEfficiency').value;
+  const efficiencyPct = effVal ? parseInt(effVal,10) : null;
+  const errorNotes = document.getElementById('entryErrorNotes').value.trim();
+  if(!entryDate || !fromTime || !toTime){ msgEl.textContent = 'Vui lòng nhập đủ Ngày, Từ giờ, Đến giờ.'; msgEl.style.color = 'var(--fail-red)'; return; }
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/entries`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ employeeId: GATE_EMPLOYEE.employeeId, entryDate, fromTime, toTime, workCategory, efficiencyPct, errorNotes })
+    });
+    if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
+    msgEl.textContent = 'Đã lưu báo cáo.';
+    msgEl.style.color = 'var(--pass-green)';
+    document.getElementById('entryTo').value = '';
+    document.getElementById('entryEfficiency').value = '';
+    document.getElementById('entryErrorNotes').value = '';
+    loadMyEntries();
+  }catch(err){
+    console.error(err);
+    msgEl.textContent = 'Không kết nối được máy chủ.';
+    msgEl.style.color = 'var(--fail-red)';
+  }
+}
+async function deleteEntry(id){
+  if(!confirm('Xóa dòng báo cáo này?')) return;
+  await fetch(`${WORKER_BASE_URL}/api/timesheet/entries?id=${id}&employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`, { method: 'DELETE' });
+  loadMyEntries();
+}
+
+async function loadMyLeaveRequests(){
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/leave-requests?employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`);
+    const rows = await res.json();
+    const tbody = document.getElementById('leaveTableBody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const statusLabel = { pending: 'Chờ duyệt', approved: 'Đã duyệt', rejected: 'Từ chối' }[r.status] || r.status;
+      tr.innerHTML = `<td>${r.leave_date}</td><td>${r.duration === 'full' ? 'Cả ngày' : 'Nửa ngày'}</td><td>${escUser(r.reason||'')}</td>
+        <td><span class="status-pill status-${r.status}">${statusLabel}</span></td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(err){ console.error('Lỗi tải đơn nghỉ phép:', err); }
+}
+async function submitLeaveRequest(){
+  const msgEl = document.getElementById('leaveMsg');
+  msgEl.textContent = '';
+  const leaveDate = document.getElementById('leaveDate').value;
+  const duration = document.getElementById('leaveDuration').value;
+  const reason = document.getElementById('leaveReason').value.trim();
+  if(!leaveDate){ msgEl.textContent = 'Vui lòng chọn ngày nghỉ.'; msgEl.style.color = 'var(--fail-red)'; return; }
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/leave-requests`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ employeeId: GATE_EMPLOYEE.employeeId, leaveDate, duration, reason })
+    });
+    if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
+    msgEl.textContent = 'Đã gửi đơn xin nghỉ, chờ SGNSS duyệt.';
+    msgEl.style.color = 'var(--pass-green)';
+    document.getElementById('leaveReason').value = '';
+    loadMyLeaveRequests();
+  }catch(err){
+    console.error(err);
+    msgEl.textContent = 'Không kết nối được máy chủ.';
+    msgEl.style.color = 'var(--fail-red)';
+  }
+}
+
+async function loadMyTasks(){
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/tasks?employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`);
+    const rows = await res.json();
+    const tbody = document.getElementById('myTasksTableBody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const statusLabel = { assigned: 'Chờ xác nhận', confirmed: 'Đã nhận việc', completed: 'Hoàn thành' }[r.status] || r.status;
+      let actionHtml = '';
+      if(r.status === 'assigned') actionHtml = `<button type="button" class="btn-sm btn-approve" data-confirm-task="${r.id}">Xác nhận nhận việc</button>`;
+      else if(r.status === 'confirmed') actionHtml = `<button type="button" class="btn-sm btn-approve" data-complete-task="${r.id}">Đánh dấu hoàn thành</button>`;
+      tr.innerHTML = `<td>${escUser(r.title)}${r.description ? '<br><span style="color:#888;font-size:11px;">'+escUser(r.description)+'</span>' : ''}</td>
+        <td>${r.deadline || '—'}</td><td><span class="status-pill status-${r.status}">${statusLabel}</span></td><td>${actionHtml}</td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-confirm-task]').forEach(b => b.addEventListener('click', () => confirmTask(parseInt(b.dataset.confirmTask,10))));
+    tbody.querySelectorAll('[data-complete-task]').forEach(b => b.addEventListener('click', () => completeTask(parseInt(b.dataset.completeTask,10))));
+  }catch(err){ console.error('Lỗi tải công việc:', err); }
+}
+async function confirmTask(taskId){
+  await fetch(`${WORKER_BASE_URL}/api/timesheet/tasks/confirm`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ taskId, employeeId: GATE_EMPLOYEE.employeeId })
+  });
+  loadMyTasks();
+}
+async function completeTask(taskId){
+  await fetch(`${WORKER_BASE_URL}/api/timesheet/tasks/complete`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ taskId, employeeId: GATE_EMPLOYEE.employeeId })
+  });
+  loadMyTasks();
+}
+
+async function loadKpiForm(){
+  try{
+    const [defsRes, entriesRes] = await Promise.all([
+      fetch(`${WORKER_BASE_URL}/api/timesheet/kpi-definitions`),
+      fetch(`${WORKER_BASE_URL}/api/timesheet/kpi-entries?employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`)
+    ]);
+    kpiDefinitionsCache = await defsRes.json();
+    const myEntries = await entriesRes.json();
+    const period = currentPeriod();
+    const wrap = document.getElementById('kpiFormWrap');
+    wrap.innerHTML = '';
+    if(!kpiDefinitionsCache.length){
+      wrap.innerHTML = '<div class="hint">SGNSS chưa thiết lập chỉ số KPI nào.</div>';
+      return;
+    }
+    kpiDefinitionsCache.forEach(k => {
+      const existing = myEntries.find(e => e.kpi_id === k.id && e.period === period);
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<div class="labeled-field"><label>${escUser(k.name)}${k.unit ? ' ('+escUser(k.unit)+')' : ''}${k.target_value ? ' — Chỉ tiêu: '+escUser(k.target_value) : ''}</label>
+        <input type="text" class="kpi-value-input" data-kpi-id="${k.id}" value="${existing ? escUser(existing.value) : ''}" placeholder="Nhập giá trị"></div>`;
+      wrap.appendChild(row);
+    });
+  }catch(err){ console.error('Lỗi tải form KPI:', err); }
+}
+async function saveMyKpi(){
+  const msgEl = document.getElementById('kpiMsg');
+  msgEl.textContent = '';
+  const period = currentPeriod();
+  const inputs = document.querySelectorAll('.kpi-value-input');
+  try{
+    for(const inp of inputs){
+      const kpiId = parseInt(inp.dataset.kpiId, 10);
+      const value = inp.value.trim();
+      if(!value) continue;
+      await fetch(`${WORKER_BASE_URL}/api/timesheet/kpi-entries`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ kpiId, employeeId: GATE_EMPLOYEE.employeeId, period, value })
+      });
+    }
+    msgEl.textContent = 'Đã lưu KPI kỳ ' + period + '.';
+    msgEl.style.color = 'var(--pass-green)';
+  }catch(err){
+    console.error(err);
+    msgEl.textContent = 'Không kết nối được máy chủ.';
+    msgEl.style.color = 'var(--fail-red)';
+  }
+}
+
+function loadMgrData(){
+  document.getElementById('mgrFrom').value = '';
+  document.getElementById('mgrTo').value = '';
+  loadMgrEntries();
+  loadMgrLeaveRequests();
+  loadMgrTasksAndEmployees();
+  loadMgrKpi();
+}
+async function loadMgrEntries(){
+  const from = document.getElementById('mgrFrom').value;
+  const to = document.getElementById('mgrTo').value;
+  const params = new URLSearchParams({ employeeId: GATE_EMPLOYEE.employeeId });
+  if(from) params.set('from', from);
+  if(to) params.set('to', to);
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/entries/all?${params.toString()}`);
+    const rows = await res.json();
+    const tbody = document.getElementById('mgrEntriesTableBody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escUser(r.employee_name||r.employee_id)}</td><td>${r.entry_date}</td><td>${r.from_time} - ${r.to_time}</td><td>${escUser(r.work_category)}</td><td>${r.efficiency_pct ?? ''}</td><td>${escUser(r.error_notes||'')}</td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(err){ console.error('Lỗi tải báo cáo SSM:', err); }
+}
+async function loadMgrLeaveRequests(){
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/leave-requests/all?employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`);
+    const rows = await res.json();
+    const tbody = document.getElementById('mgrLeaveTableBody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const statusLabel = { pending: 'Chờ duyệt', approved: 'Đã duyệt', rejected: 'Từ chối' }[r.status] || r.status;
+      let actionHtml = '—';
+      if(r.status === 'pending'){
+        actionHtml = `<button type="button" class="btn-sm btn-approve" data-approve-leave="${r.id}">Duyệt</button>
+          <button type="button" class="btn-sm btn-reject" data-reject-leave="${r.id}">Từ chối</button>`;
+      }
+      tr.innerHTML = `<td>${escUser(r.employee_name||r.employee_id)}</td><td>${r.leave_date}</td><td>${r.duration==='full'?'Cả ngày':'Nửa ngày'}</td><td>${escUser(r.reason||'')}</td><td><span class="status-pill status-${r.status}">${statusLabel}</span></td><td>${actionHtml}</td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-approve-leave]').forEach(b => b.addEventListener('click', () => reviewLeave(parseInt(b.dataset.approveLeave,10), 'approved')));
+    tbody.querySelectorAll('[data-reject-leave]').forEach(b => b.addEventListener('click', () => reviewLeave(parseInt(b.dataset.rejectLeave,10), 'rejected')));
+  }catch(err){ console.error('Lỗi tải đơn nghỉ phép:', err); }
+}
+async function reviewLeave(requestId, decision){
+  await fetch(`${WORKER_BASE_URL}/api/timesheet/leave-requests/review`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ requestId, decision, reviewerEmployeeId: GATE_EMPLOYEE.employeeId })
+  });
+  loadMgrLeaveRequests();
+}
+async function loadMgrTasksAndEmployees(){
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/tasks/all?employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`);
+    const rows = await res.json();
+    const tbody = document.getElementById('mgrTasksTableBody');
+    tbody.innerHTML = '';
+    const seenEmployees = new Set();
+    rows.forEach(r => {
+      seenEmployees.add(r.assigned_to);
+      const tr = document.createElement('tr');
+      const statusLabel = { assigned: 'Chờ xác nhận', confirmed: 'Đã nhận việc', completed: 'Hoàn thành' }[r.status] || r.status;
+      tr.innerHTML = `<td>${escUser(r.assigned_to_name||r.assigned_to)}</td><td>${escUser(r.title)}</td><td>${r.deadline||'—'}</td><td><span class="status-pill status-${r.status}">${statusLabel}</span></td>`;
+      tbody.appendChild(tr);
+    });
+    const sel = document.getElementById('taskAssignTo');
+    if(sel.options.length === 0){
+      sel.innerHTML = '<option value="">-- Nhập/chọn mã NV --</option>';
+      seenEmployees.forEach(code => {
+        const opt = document.createElement('option'); opt.value = code; opt.textContent = code; sel.appendChild(opt);
+      });
+    }
+  }catch(err){ console.error('Lỗi tải công việc:', err); }
+}
+async function assignTask(){
+  const msgEl = document.getElementById('mgrTasksMsg');
+  msgEl.textContent = '';
+  const assignedTo = document.getElementById('taskAssignTo').value.trim();
+  const title = document.getElementById('taskTitle').value.trim();
+  const description = document.getElementById('taskDescription').value.trim();
+  const deadline = document.getElementById('taskDeadline').value;
+  if(!assignedTo || !title){ msgEl.textContent = 'Vui lòng nhập Mã NV và Tên công việc.'; msgEl.style.color = 'var(--fail-red)'; return; }
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/tasks`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ assignedTo, assignedBy: GATE_EMPLOYEE.employeeId, title, description, deadline })
+    });
+    if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
+    msgEl.textContent = 'Đã giao việc.';
+    msgEl.style.color = 'var(--pass-green)';
+    document.getElementById('taskTitle').value = '';
+    document.getElementById('taskDescription').value = '';
+    document.getElementById('taskDeadline').value = '';
+    loadMgrTasksAndEmployees();
+  }catch(err){
+    console.error(err);
+    msgEl.textContent = 'Không kết nối được máy chủ.';
+    msgEl.style.color = 'var(--fail-red)';
+  }
+}
+async function loadMgrKpi(){
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/kpi-definitions`);
+    kpiDefinitionsCache = await res.json();
+    const tbody = document.getElementById('kpiDefTableBody');
+    tbody.innerHTML = '';
+    kpiDefinitionsCache.forEach(k => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escUser(k.name)}</td><td>${escUser(k.unit||'')}</td><td>${escUser(k.target_value||'')}</td>
+        <td><button type="button" class="btn-sm btn-reject" data-del-kpi="${k.id}">Xóa</button></td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('[data-del-kpi]').forEach(b => b.addEventListener('click', () => deleteKpiDef(parseInt(b.dataset.delKpi,10))));
+
+    const entriesRes = await fetch(`${WORKER_BASE_URL}/api/timesheet/kpi-entries/all?employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}&period=${currentPeriod()}`);
+    const entries = await entriesRes.json();
+    const entriesBody = document.getElementById('mgrKpiEntriesTableBody');
+    entriesBody.innerHTML = '';
+    entries.forEach(e => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escUser(e.employee_name||e.employee_id)}</td><td>${escUser(e.kpi_name)}</td><td>${escUser(e.value||'')} ${escUser(e.kpi_unit||'')}</td>`;
+      entriesBody.appendChild(tr);
+    });
+  }catch(err){ console.error('Lỗi tải KPI:', err); }
+}
+async function addKpiDef(){
+  const msgEl = document.getElementById('mgrKpiMsg');
+  msgEl.textContent = '';
+  const name = document.getElementById('newKpiName').value.trim();
+  const unit = document.getElementById('newKpiUnit').value.trim();
+  const targetValue = document.getElementById('newKpiTarget').value.trim();
+  if(!name){ msgEl.textContent = 'Vui lòng nhập tên chỉ số.'; msgEl.style.color = 'var(--fail-red)'; return; }
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/timesheet/kpi-definitions`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, unit, targetValue, creatorEmployeeId: GATE_EMPLOYEE.employeeId })
+    });
+    if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
+    document.getElementById('newKpiName').value = '';
+    document.getElementById('newKpiUnit').value = '';
+    document.getElementById('newKpiTarget').value = '';
+    loadMgrKpi();
+  }catch(err){ console.error(err); msgEl.textContent = 'Không kết nối được máy chủ.'; msgEl.style.color = 'var(--fail-red)'; }
+}
+async function deleteKpiDef(id){
+  if(!confirm('Xóa chỉ số KPI này?')) return;
+  await fetch(`${WORKER_BASE_URL}/api/timesheet/kpi-definitions?id=${id}&employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`, { method: 'DELETE' });
+  loadMgrKpi();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnGateSubmit').addEventListener('click', submitGate);
+  document.getElementById('gateId').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitGate(); });
+
+  document.querySelectorAll('#ssmTabs .section-tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.sec)));
+  document.querySelectorAll('#mgrTabs .section-tab-btn').forEach(b => b.addEventListener('click', () => switchMgrSection(b.dataset.msec)));
+
+  document.getElementById('btnAddEntry').addEventListener('click', addEntry);
+  document.getElementById('btnSubmitLeave').addEventListener('click', submitLeaveRequest);
+  document.getElementById('btnSaveKpi').addEventListener('click', saveMyKpi);
+
+  document.getElementById('btnMgrFilter').addEventListener('click', loadMgrEntries);
+  document.getElementById('btnAssignTask').addEventListener('click', assignTask);
+  document.getElementById('btnAddKpiDef').addEventListener('click', addKpiDef);
+
+  initGate();
+});
+</script>
+</body>
+</html>
