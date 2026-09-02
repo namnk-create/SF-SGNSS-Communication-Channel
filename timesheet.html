@@ -68,11 +68,23 @@ td{padding:7px 8px;border-bottom:1px solid var(--sf-border);vertical-align:top;}
   <div class="gate-box">
     <div style="font-weight:900;font-size:22px;color:var(--sf-red);margin-bottom:14px;">SF EXPRESS</div>
     <h2>Đăng nhập báo cáo thời gian</h2>
-    <p>Nhập đúng Họ tên và Mã nhân viên đã được đăng ký trong hệ thống.</p>
+    <p>Đăng nhập bằng Mã nhân viên và Mật khẩu. Lần đầu tiên, mật khẩu mặc định chính là Mã nhân viên của bạn.</p>
     <div class="gate-error" id="gateError"></div>
-    <input type="text" id="gateName" placeholder="Họ và tên" autocomplete="off">
-    <input type="text" id="gateId" placeholder="Mã nhân viên" autocomplete="off">
+    <input type="text" id="gateId" placeholder="Mã nhân viên (Username)" autocomplete="username">
+    <input type="password" id="gatePassword" placeholder="Mật khẩu" autocomplete="current-password">
     <button type="button" id="btnGateSubmit">Vào hệ thống</button>
+  </div>
+</div>
+<div class="gate-overlay" id="changePasswordGate" style="display:none;">
+  <div class="gate-box">
+    <div style="font-weight:900;font-size:22px;color:var(--sf-red);margin-bottom:14px;">SF EXPRESS</div>
+    <h2>Đổi mật khẩu lần đầu</h2>
+    <p>Đây là lần đăng nhập đầu tiên — vui lòng đặt mật khẩu mới trước khi tiếp tục.</p>
+    <div style="text-align:left;font-size:12.5px;color:var(--sf-dark-grey);margin-bottom:12px;">Yêu cầu: tối thiểu 6 ký tự, nên khác với Mã nhân viên.</div>
+    <div class="gate-error" id="changePwError"></div>
+    <input type="password" id="newPassword1" placeholder="Mật khẩu mới" autocomplete="new-password">
+    <input type="password" id="newPassword2" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password">
+    <button type="button" id="btnChangePasswordSubmit">Lưu mật khẩu mới</button>
   </div>
 </div>
 
@@ -218,12 +230,26 @@ function currentPeriod(){
 function initGate(){
   const cached = sessionStorage.getItem('sf_gate_employee');
   if(cached){
-    try{ GATE_EMPLOYEE = JSON.parse(cached); applyGate(); return; }catch(e){ sessionStorage.removeItem('sf_gate_employee'); }
+    try{
+      GATE_EMPLOYEE = JSON.parse(cached);
+      if(GATE_EMPLOYEE && GATE_EMPLOYEE.mustChangePassword){
+        sessionStorage.removeItem('sf_gate_employee');
+        GATE_EMPLOYEE = null;
+        document.getElementById('employeeGate').style.display = 'flex';
+        return;
+      }
+      applyGate();
+      return;
+    }catch(e){ sessionStorage.removeItem('sf_gate_employee'); }
   }
   document.getElementById('employeeGate').style.display = 'flex';
 }
 function applyGate(){
   document.getElementById('employeeGate').style.display = 'none';
+  if(GATE_EMPLOYEE && GATE_EMPLOYEE.mustChangePassword){
+    document.getElementById('changePasswordGate').style.display = 'flex';
+    return;
+  }
   document.getElementById('mainContent').style.display = 'block';
   const isSgnss = GATE_EMPLOYEE.title === 'SGNSS';
   document.getElementById('roleBadge').textContent = `${GATE_EMPLOYEE.name} (${GATE_EMPLOYEE.employeeId}) — ${isSgnss ? 'SGNSS' : (GATE_EMPLOYEE.title || 'SSM')}`;
@@ -240,21 +266,48 @@ function applyGate(){
   loadMyTasks();
   loadKpiForm();
 }
+let LAST_LOGIN_PASSWORD = null;
 async function submitGate(){
-  const name = document.getElementById('gateName').value.trim();
   const id = document.getElementById('gateId').value.trim();
+  const password = document.getElementById('gatePassword').value;
   const errEl = document.getElementById('gateError');
   errEl.style.display = 'none';
-  if(!name || !id){ errEl.textContent = 'Vui lòng nhập đầy đủ Họ tên và Mã nhân viên.'; errEl.style.display = 'block'; return; }
+  if(!id || !password){ errEl.textContent = 'Vui lòng nhập đầy đủ Mã nhân viên và Mật khẩu.'; errEl.style.display = 'block'; return; }
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/employee/verify`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name, employeeId: id })
+      body: JSON.stringify({ employeeId: id, password })
     });
     const data = await res.json();
     if(!res.ok || !data.ok){ errEl.textContent = data.error || 'Không xác thực được.'; errEl.style.display = 'block'; return; }
     GATE_EMPLOYEE = data;
+    LAST_LOGIN_PASSWORD = password;
     sessionStorage.setItem('sf_gate_employee', JSON.stringify(data));
+    applyGate();
+  }catch(err){
+    console.error(err);
+    errEl.textContent = 'Không kết nối được máy chủ.';
+    errEl.style.display = 'block';
+  }
+}
+async function submitChangePassword(){
+  const p1 = document.getElementById('newPassword1').value;
+  const p2 = document.getElementById('newPassword2').value;
+  const errEl = document.getElementById('changePwError');
+  errEl.style.display = 'none';
+  if(!p1 || !p2){ errEl.textContent = 'Vui lòng nhập đầy đủ cả 2 ô mật khẩu.'; errEl.style.display = 'block'; return; }
+  if(p1.length < 6){ errEl.textContent = 'Mật khẩu mới cần tối thiểu 6 ký tự.'; errEl.style.display = 'block'; return; }
+  if(p1 !== p2){ errEl.textContent = 'Mật khẩu nhập lại không khớp.'; errEl.style.display = 'block'; return; }
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/employee/change-password`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ employeeId: GATE_EMPLOYEE.employeeId, currentPassword: LAST_LOGIN_PASSWORD, newPassword: p1 })
+    });
+    const data = await res.json();
+    if(!res.ok){ errEl.textContent = data.error || 'Không đổi được mật khẩu.'; errEl.style.display = 'block'; return; }
+    GATE_EMPLOYEE.mustChangePassword = false;
+    sessionStorage.setItem('sf_gate_employee', JSON.stringify(GATE_EMPLOYEE));
+    document.getElementById('changePasswordGate').style.display = 'none';
     applyGate();
   }catch(err){
     console.error(err);
@@ -602,6 +655,7 @@ async function deleteKpiDef(id){
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnGateSubmit').addEventListener('click', submitGate);
+  document.getElementById('btnChangePasswordSubmit').addEventListener('click', submitChangePassword);
   document.getElementById('gateId').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitGate(); });
 
   document.querySelectorAll('#ssmTabs .section-tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.sec)));

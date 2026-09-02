@@ -305,15 +305,30 @@ th.donts{background:#FFEBEE;color:#C62828;}
 <div class="gate-overlay" id="employeeGate">
   <div class="gate-box">
     <img src="assets/logo-icon.png" alt="SF Express" class="gate-logo-img">
-    <h2>Xác thực nhân viên</h2>
-    <p>Nhập đúng Họ tên và Mã nhân viên đã được đăng ký để vào hệ thống đào tạo nội bộ.</p>
+    <h2>Đăng nhập hệ thống</h2>
+    <p>Đăng nhập bằng Mã nhân viên và Mật khẩu. Lần đầu tiên, mật khẩu mặc định chính là Mã nhân viên của bạn.</p>
     <div class="gate-error" id="gateError"></div>
-    <input type="text" id="gateName" placeholder="Họ và tên" autocomplete="off">
-    <input type="text" id="gateId" placeholder="Mã nhân viên" autocomplete="off">
+    <input type="text" id="gateId" placeholder="Mã nhân viên (Username)" autocomplete="username">
+    <input type="password" id="gatePassword" placeholder="Mật khẩu" autocomplete="current-password">
     <button type="button" id="btnGateSubmit">Vào hệ thống</button>
     <div style="text-align:center;margin-top:14px;">
       <a href="javascript:void(0)" id="linkGateAdmin" style="font-size:12.5px;color:var(--sf-dark-grey);font-weight:600;">🔐 Đăng nhập Admin</a>
     </div>
+  </div>
+</div>
+<!-- Màn hình BẮT BUỘC đổi mật khẩu — hiện ngay sau khi đăng nhập thành công lần đầu (mật
+     khẩu vẫn đang là mặc định = Mã NV). Chặn hẳn không cho vào trang chính cho tới khi đổi
+     xong, không có cách nào bỏ qua bước này (không có nút "Đóng"/"Bỏ qua"). -->
+<div class="gate-overlay" id="changePasswordGate" style="display:none;">
+  <div class="gate-box">
+    <img src="assets/logo-icon.png" alt="SF Express" class="gate-logo-img">
+    <h2>Đổi mật khẩu lần đầu</h2>
+    <p>Đây là lần đăng nhập đầu tiên — vui lòng đặt mật khẩu mới cho riêng mình trước khi tiếp tục.</p>
+    <div class="admin-hint" style="text-align:left;margin-bottom:12px;">Yêu cầu mật khẩu: tối thiểu 6 ký tự. Nên đặt mật khẩu khác với Mã nhân viên để đảm bảo an toàn.</div>
+    <div class="gate-error" id="changePwError"></div>
+    <input type="password" id="newPassword1" placeholder="Mật khẩu mới" autocomplete="new-password">
+    <input type="password" id="newPassword2" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password">
+    <button type="button" id="btnChangePasswordSubmit">Lưu mật khẩu mới</button>
   </div>
 </div>
 <div class="container">
@@ -513,11 +528,11 @@ th.donts{background:#FFEBEE;color:#C62828;}
         </div>
 
         <div class="admin-panel" id="adminPanelEmployees">
-          <div class="admin-hint">Chỉ nhân viên có trong danh sách này mới vào được trang web (xác thực bằng đúng Tên + Mã NV). Bật "Tải báo cáo" để nhân viên đó thấy nút Extract Data ở trang thống kê. Mã kho và Chức danh gõ tự do — gõ đúng 1 chức danh đã dùng trước đó sẽ được gợi ý tự động.</div>
+          <div class="admin-hint">Đăng nhập bằng Mã NV (username) + Mật khẩu. Mật khẩu BAN ĐẦU của NV mới luôn = chính Mã NV — NV sẽ bị bắt đổi mật khẩu ngay lần đăng nhập đầu tiên. Cột "Mật khẩu hiện tại" cho Admin xem để hỗ trợ khi NV quên mật khẩu. Bật "Tải báo cáo" để nhân viên đó thấy nút Extract Data ở trang thống kê.</div>
           <div class="admin-status-msg" id="empMsg"></div>
           <div class="admin-row"><button type="button" class="btn-icon-only" id="btnExtractEmployees" title="Tải danh sách NV (Excel)">💾</button></div>
           <table class="admin-table"><thead><tr>
-            <th>Tên NV</th><th>Mã NV</th><th>Mã kho</th><th>Chức danh</th><th>Tải báo cáo</th><th></th>
+            <th>Tên NV</th><th>Mã NV</th><th>Mã kho</th><th>Chức danh</th><th>Mật khẩu hiện tại</th><th>Tải báo cáo</th><th></th>
           </tr></thead><tbody id="empTableBody"></tbody></table>
           <div class="admin-row">
             <input type="text" id="newEmpName" placeholder="Tên NV">
@@ -530,6 +545,7 @@ th.donts{background:#FFEBEE;color:#C62828;}
             </label>
             <button type="button" class="admin-btn-add" id="btnAddEmployee" title="Thêm nhân viên">+</button>
           </div>
+          <div class="admin-hint">Không cần đặt mật khẩu khi tạo mới — hệ thống tự đặt mật khẩu ban đầu = chính Mã NV vừa nhập.</div>
 
           <div class="admin-section-title">📥 Thêm hàng loạt từ Excel</div>
           <div class="admin-row">
@@ -2182,6 +2198,15 @@ function initEmployeeGate(){
   if(cached){
     try{
       GATE_EMPLOYEE = JSON.parse(cached);
+      // Nếu đang giữa chừng bắt buộc đổi mật khẩu (chưa hoàn tất) mà trang bị tải lại, sẽ
+      // không còn giữ mật khẩu cũ trong bộ nhớ (LAST_LOGIN_PASSWORD mất khi F5) — bắt đăng
+      // nhập lại từ đầu thay vì hiện màn đổi mật khẩu mà không có gì để xác nhận.
+      if(GATE_EMPLOYEE && GATE_EMPLOYEE.mustChangePassword){
+        sessionStorage.removeItem('sf_gate_employee');
+        GATE_EMPLOYEE = null;
+        document.getElementById('employeeGate').style.display = 'flex';
+        return;
+      }
       applyGateEmployee();
       return;
     }catch(e){ sessionStorage.removeItem('sf_gate_employee'); }
@@ -2190,6 +2215,12 @@ function initEmployeeGate(){
 }
 function applyGateEmployee(){
   document.getElementById('employeeGate').style.display = 'none';
+  // Lần đăng nhập đầu tiên (mật khẩu vẫn là mặc định = Mã NV) — chặn hẳn vào trang chính,
+  // bắt buộc đổi mật khẩu trước, không có cách nào bỏ qua bước này.
+  if(GATE_EMPLOYEE && GATE_EMPLOYEE.mustChangePassword){
+    document.getElementById('changePasswordGate').style.display = 'flex';
+    return;
+  }
   const nameInput = document.getElementById('driverName');
   const idInput = document.getElementById('driverID');
   if(nameInput && idInput && GATE_EMPLOYEE){
@@ -2203,6 +2234,9 @@ function applyGateEmployee(){
   updateExtractButtonVisibility();
   if(PERIODIC_TEST_ID) checkPeriodicTestAttempt();
 }
+// Ghi nhớ tạm mật khẩu vừa dùng để đăng nhập (chỉ trong bộ nhớ JS, KHÔNG lưu sessionStorage)
+// — cần gửi lại làm "mật khẩu hiện tại" khi gọi API đổi mật khẩu ngay sau đó.
+let LAST_LOGIN_PASSWORD = null;
 // Bài test định kỳ (có ?pt=<id> trên URL) chỉ cho phép NV làm 1 LẦN DUY NHẤT — kiểm tra ngay
 // sau khi xác thực NV, nếu đã làm rồi thì ẩn hẳn banner "Bắt đầu làm bài", hiện thông báo chặn
 // kèm ngày đã làm + kết quả trước đó, không cho làm lại (cũng được chặn cả ở server để chắc chắn).
@@ -2222,12 +2256,12 @@ async function checkPeriodicTestAttempt(){
   }catch(err){ console.error('Lỗi kiểm tra lượt làm bài test định kỳ:', err); }
 }
 async function submitGate(){
-  const name = document.getElementById('gateName').value.trim();
   const id = document.getElementById('gateId').value.trim();
+  const password = document.getElementById('gatePassword').value;
   const errEl = document.getElementById('gateError');
   errEl.style.display = 'none';
-  if(!name || !id){
-    errEl.textContent = 'Vui lòng nhập đầy đủ Họ tên và Mã nhân viên.';
+  if(!id || !password){
+    errEl.textContent = 'Vui lòng nhập đầy đủ Mã nhân viên và Mật khẩu.';
     errEl.style.display = 'block';
     return;
   }
@@ -2236,7 +2270,7 @@ async function submitGate(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/employee/verify`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name, employeeId: id })
+      body: JSON.stringify({ employeeId: id, password })
     });
     const data = await res.json();
     if(!res.ok || !data.ok){
@@ -2246,11 +2280,49 @@ async function submitGate(){
       return;
     }
     GATE_EMPLOYEE = data;
+    LAST_LOGIN_PASSWORD = password;
     sessionStorage.setItem('sf_gate_employee', JSON.stringify(data));
     applyGateEmployee();
   }catch(err){
     console.error('Lỗi xác thực nhân viên:', err);
     errEl.textContent = 'Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.';
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false;
+}
+// Bắt buộc đổi mật khẩu ở lần đăng nhập đầu tiên — gọi API đổi, sau đó mới cho vào trang
+// chính (không set mustChangePassword=false thủ công phía client, luôn dựa vào phản hồi
+// thành công từ server để tránh giả mạo/qua mặt bước này).
+async function submitChangePassword(){
+  const p1 = document.getElementById('newPassword1').value;
+  const p2 = document.getElementById('newPassword2').value;
+  const errEl = document.getElementById('changePwError');
+  errEl.style.display = 'none';
+  if(!p1 || !p2){ errEl.textContent = 'Vui lòng nhập đầy đủ cả 2 ô mật khẩu.'; errEl.style.display = 'block'; return; }
+  if(p1.length < 6){ errEl.textContent = 'Mật khẩu mới cần tối thiểu 6 ký tự.'; errEl.style.display = 'block'; return; }
+  if(p1 !== p2){ errEl.textContent = 'Mật khẩu nhập lại không khớp.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('btnChangePasswordSubmit');
+  btn.disabled = true;
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/employee/change-password`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ employeeId: GATE_EMPLOYEE.employeeId, currentPassword: LAST_LOGIN_PASSWORD, newPassword: p1 })
+    });
+    const data = await res.json();
+    if(!res.ok){
+      errEl.textContent = data.error || 'Không đổi được mật khẩu.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      return;
+    }
+    GATE_EMPLOYEE.mustChangePassword = false;
+    LAST_LOGIN_PASSWORD = p1;
+    sessionStorage.setItem('sf_gate_employee', JSON.stringify(GATE_EMPLOYEE));
+    document.getElementById('changePasswordGate').style.display = 'none';
+    applyGateEmployee();
+  }catch(err){
+    console.error('Lỗi đổi mật khẩu:', err);
+    errEl.textContent = 'Không kết nối được máy chủ.';
     errEl.style.display = 'block';
   }
   btn.disabled = false;
@@ -3802,7 +3874,7 @@ async function bulkImportEmployees(){
     });
     const data = await res.json();
     if(!res.ok){ msgEl.textContent = data.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
-    let text = `Đã thêm ${data.inserted}/${items.length} nhân viên.`;
+    let text = `Đã thêm ${data.inserted}/${items.length} nhân viên — mật khẩu ban đầu = chính Mã NV của mỗi người.`;
     if(data.errors && data.errors.length) text += ` Bỏ qua ${data.errors.length} dòng lỗi: ${data.errors.slice(0,3).join('; ')}${data.errors.length > 3 ? '...' : ''}`;
     msgEl.textContent = text;
     msgEl.style.color = data.errors && data.errors.length ? 'var(--fail-red)' : 'var(--pass-green)';
@@ -3830,15 +3902,40 @@ function renderEmployeesTable(){
   tbody.innerHTML = '';
   employeesCache.forEach(e => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escUser(e.name)}</td><td>${escUser(e.employee_id)}</td><td>${escUser(e.warehouse_code||'')}</td><td>${escUser(e.title||'')}</td><td>${e.can_download_reports ? '✅' : '—'}</td>
+    const defaultNote = e.must_change_password ? ' <span style="color:#999;font-size:11px;">(mặc định, chưa đổi)</span>' : '';
+    tr.innerHTML = `<td>${escUser(e.name)}</td><td>${escUser(e.employee_id)}</td><td>${escUser(e.warehouse_code||'')}</td><td>${escUser(e.title||'')}</td><td><code>${escUser(e.password_display)}</code>${defaultNote}</td><td>${e.can_download_reports ? '✅' : '—'}</td>
       <td style="white-space:nowrap;">
         <button type="button" class="icon-btn-edit" data-emp-edit="${e.id}" title="Sửa">✏️</button>
+        <button type="button" class="btn-icon-only" data-emp-resetpw="${e.id}" title="Đặt lại mật khẩu về mặc định (= Mã NV)" style="width:32px;height:32px;font-size:14px;">🔄</button>
         <button type="button" class="icon-btn-del" data-emp-del="${e.id}" title="Xóa">🗑️</button>
       </td>`;
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll('[data-emp-edit]').forEach(b => b.addEventListener('click', () => editEmployee(parseInt(b.dataset.empEdit,10))));
+  tbody.querySelectorAll('[data-emp-resetpw]').forEach(b => b.addEventListener('click', () => resetEmployeePassword(parseInt(b.dataset.empResetpw,10))));
   tbody.querySelectorAll('[data-emp-del]').forEach(b => b.addEventListener('click', () => deleteEmployee(parseInt(b.dataset.empDel,10))));
+}
+async function resetEmployeePassword(id){
+  const e = employeesCache.find(x => x.id === id);
+  if(!e) return;
+  if(!confirm(`Đặt lại mật khẩu của "${e.name}" về mặc định (= Mã NV "${e.employee_id}")? NV sẽ bị bắt đổi mật khẩu lại từ đầu ở lần đăng nhập tiếp theo.`)) return;
+  const token = adminToken();
+  const msgEl = document.getElementById('empMsg');
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/employees/reset-password`, {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if(!res.ok){ msgEl.textContent = data.error || 'Không đặt lại được mật khẩu.'; msgEl.style.color = 'var(--fail-red)'; return; }
+    msgEl.textContent = `✅ Đã đặt lại mật khẩu của "${e.name}" về mặc định (= Mã NV).`;
+    msgEl.style.color = 'var(--pass-green)';
+    loadEmployees();
+  }catch(err){
+    console.error('Lỗi đặt lại mật khẩu:', err);
+    msgEl.textContent = 'Không kết nối được máy chủ.';
+    msgEl.style.color = 'var(--fail-red)';
+  }
 }
 function editEmployee(id){
   const e = employeesCache.find(x => x.id === id);
@@ -3891,7 +3988,7 @@ async function saveEmployee(){
     }
     const data = await res.json();
     if(!res.ok){ msgEl.textContent = data.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
-    msgEl.textContent = editingEmployeeId ? 'Đã cập nhật.' : 'Đã thêm nhân viên.';
+    msgEl.textContent = editingEmployeeId ? 'Đã cập nhật.' : 'Đã thêm nhân viên — mật khẩu ban đầu = Mã NV, NV sẽ phải tự đổi ở lần đăng nhập đầu.';
     msgEl.style.color = 'var(--pass-green)';
     clearEmployeeForm();
     loadEmployees();
@@ -3899,6 +3996,7 @@ async function saveEmployee(){
     console.error('Lỗi lưu nhân viên:', err);
     msgEl.textContent = 'Không kết nối được máy chủ.';
     msgEl.style.color = 'var(--fail-red)';
+
   }
 }
 async function deleteEmployee(id){
@@ -4339,6 +4437,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ----- Cổng vào nhân viên -----
   document.getElementById('btnGateSubmit').addEventListener('click', submitGate);
   document.getElementById('gateId').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitGate(); });
+  document.getElementById('gatePassword').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitGate(); });
+  document.getElementById('btnChangePasswordSubmit').addEventListener('click', submitChangePassword);
+  document.getElementById('newPassword2').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitChangePassword(); });
   document.getElementById('linkGateAdmin').addEventListener('click', openAdminModal);
 
   // ----- Extract Data (trang thống kê công khai) -----

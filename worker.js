@@ -134,6 +134,7 @@ export default {
       if (url.pathname === "/api/questions" && request.method === "GET") return handleGetQuestions(url, env);
       if (url.pathname === "/api/program-config" && request.method === "GET") return handleGetProgramConfig(url, env);
       if (url.pathname === "/api/employee/verify" && request.method === "POST") return handleEmployeeVerify(request, env);
+      if (url.pathname === "/api/employee/change-password" && request.method === "POST") return handleEmployeeChangePassword(request, env);
       if (url.pathname === "/api/reports/export" && request.method === "GET") return handleEmployeeReportExport(url, env);
       if (url.pathname === "/api/programs" && request.method === "GET") return handleListProgramsPublic(env);
       if (url.pathname === "/api/course-content" && request.method === "GET") return handleGetCourseContent(url, env);
@@ -209,6 +210,8 @@ export default {
           if (request.method === "PUT") return handleUpdateEmployee(request, env);
           if (request.method === "DELETE") return handleDeleteEmployee(url, env);
         }
+        if (url.pathname === "/api/admin/employees/reset-password" && request.method === "POST")
+          return handleResetEmployeePassword(request, env);
 
         if (url.pathname === "/api/admin/questions") {
           if (request.method === "GET") return handleListQuestions(url, env);
@@ -858,15 +861,17 @@ async function handleDeleteEmployeeTitle(url, env) {
 }
 
 async function handleEmployeeVerify(request, env) {
-  const { name, employeeId } = await request.json();
-  if (!name || !employeeId) return jsonResponse({ ok: false, error: "Thiếu tên hoặc mã NV" }, 400);
+  const { employeeId, password } = await request.json();
+  if (!employeeId || !password) return jsonResponse({ ok: false, error: "Thiếu mã nhân viên hoặc mật khẩu" }, 400);
   const row = await env.DB.prepare(
-    "SELECT name, employee_id, warehouse_code, title, can_download_reports FROM employees WHERE employee_id = ?"
+    "SELECT * FROM employees WHERE employee_id = ?"
   ).bind(employeeId.trim()).first();
   if (!row) return jsonResponse({ ok: false, error: "Mã nhân viên không tồn tại trong hệ thống" }, 404);
-  const norm = (s) => s.trim().toLowerCase();
-  if (norm(row.name) !== norm(name)) {
-    return jsonResponse({ ok: false, error: "Tên không khớp với mã nhân viên" }, 403);
+  // Mật khẩu MẶC ĐỊNH = chính Mã NV (cho tới khi NV tự đổi lần đầu). Lưu dạng thô (không mã
+  // hóa) theo đúng yêu cầu — để Admin xem/hỗ trợ được khi NV quên mật khẩu.
+  const currentPassword = row.password_plain || row.employee_id;
+  if (password !== currentPassword) {
+    return jsonResponse({ ok: false, error: "Mật khẩu không đúng." }, 401);
   }
   return jsonResponse({
     ok: true,
@@ -875,7 +880,26 @@ async function handleEmployeeVerify(request, env) {
     warehouseCode: row.warehouse_code,
     title: row.title,
     canDownloadReports: !!row.can_download_reports,
+    // Báo cho frontend biết cần bắt buộc hiện màn hình đổi mật khẩu trước khi vào hệ thống.
+    mustChangePassword: !!row.must_change_password,
   });
+}
+
+// NV tự đổi mật khẩu (bắt buộc ở lần đăng nhập đầu tiên, hoặc tự nguyện đổi sau này). Mật
+// khẩu mới cũng lưu dạng thô, đồng thời cập nhật vào đúng dòng NV đó trong bảng quản lý của
+// Admin để Admin xem lại được khi cần hỗ trợ.
+async function handleEmployeeChangePassword(request, env) {
+  const { employeeId, currentPassword, newPassword } = await request.json();
+  if (!employeeId || !currentPassword || !newPassword) return jsonResponse({ error: "Thiếu dữ liệu" }, 400);
+  if (newPassword.length < 6) return jsonResponse({ error: "Mật khẩu mới cần tối thiểu 6 ký tự." }, 400);
+  const row = await env.DB.prepare("SELECT * FROM employees WHERE employee_id = ?").bind(employeeId.trim()).first();
+  if (!row) return jsonResponse({ error: "Không tìm thấy nhân viên" }, 404);
+  const currentStored = row.password_plain || row.employee_id;
+  if (currentPassword !== currentStored) return jsonResponse({ error: "Mật khẩu hiện tại không đúng." }, 401);
+  await env.DB.prepare(
+    "UPDATE employees SET password_plain = ?, must_change_password = 0 WHERE employee_id = ?"
+  ).bind(newPassword, employeeId.trim()).run();
+  return jsonResponse({ ok: true });
 }
 
 /* ================= ADMIN: AUTH ================= */
@@ -968,7 +992,13 @@ async function handleChangePassword(request, env, username) {
 
 async function handleListEmployees(env) {
   const { results } = await env.DB.prepare("SELECT * FROM employees ORDER BY name").all();
-  return jsonResponse(results);
+  // Trả password_plain trực tiếp (theo đúng yêu cầu — Admin cần xem được mật khẩu hiện tại
+  // của NV để hỗ trợ khi cần), không ẩn/mã hóa gì thêm ở đây.
+  const rows = results.map((r) => ({
+    ...r,
+    password_display: r.password_plain || r.employee_id, // chưa đổi lần nào -> mặc định = Mã NV
+  }));
+  return jsonResponse(rows);
 }
 
 async function handleCreateEmployee(request, env) {
@@ -979,9 +1009,11 @@ async function handleCreateEmployee(request, env) {
   for (const e of items) {
     if (!e.name || !e.employeeId) { errors.push(`Thiếu tên/mã NV (dòng "${e.name || e.employeeId || "?"}")`); continue; }
     try {
+      // Mật khẩu BAN ĐẦU luôn = chính Mã NV, bắt buộc đổi ngay lần đăng nhập đầu tiên —
+      // không cần Admin phải tự đặt mật khẩu thủ công khi tạo NV mới.
       await env.DB.prepare(
-        "INSERT INTO employees (name, employee_id, warehouse_code, title, can_download_reports) VALUES (?, ?, ?, ?, ?)"
-      ).bind(e.name, e.employeeId, e.warehouseCode ?? null, e.title ?? null, e.canDownloadReports ? 1 : 0).run();
+        "INSERT INTO employees (name, employee_id, warehouse_code, title, can_download_reports, password_plain, must_change_password) VALUES (?, ?, ?, ?, ?, ?, 1)"
+      ).bind(e.name, e.employeeId, e.warehouseCode ?? null, e.title ?? null, e.canDownloadReports ? 1 : 0, e.employeeId).run();
       await rememberEmployeeTitle(env, e.title);
       inserted++;
     } catch (err) {
@@ -1002,6 +1034,19 @@ async function handleUpdateEmployee(request, env) {
      WHERE id = ?`
   ).bind(e.name, e.employeeId, e.warehouseCode ?? null, e.title ?? null, e.canDownloadReports ? 1 : 0, e.id).run();
   await rememberEmployeeTitle(env, e.title);
+  return jsonResponse({ ok: true });
+}
+
+// Admin bấm "Đặt lại mật khẩu" cho 1 NV — đưa mật khẩu về lại chính Mã NV và bắt đổi lại từ
+// đầu, dùng khi NV quên mật khẩu tự đặt và cần Admin hỗ trợ mở lại.
+async function handleResetEmployeePassword(request, env) {
+  const { id } = await request.json();
+  if (!id) return jsonResponse({ error: "Thiếu id" }, 400);
+  const row = await env.DB.prepare("SELECT employee_id FROM employees WHERE id = ?").bind(id).first();
+  if (!row) return jsonResponse({ error: "Không tìm thấy nhân viên" }, 404);
+  await env.DB.prepare(
+    "UPDATE employees SET password_plain = ?, must_change_password = 1 WHERE id = ?"
+  ).bind(row.employee_id, id).run();
   return jsonResponse({ ok: true });
 }
 
