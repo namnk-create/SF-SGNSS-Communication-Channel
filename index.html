@@ -453,17 +453,22 @@ th.donts{background:#FFEBEE;color:#C62828;}
         <!-- TAB: Nhân viên -->
         <!-- TAB: Tổng quan (Dashboard) -->
         <div class="admin-panel active" id="adminPanelGeneral">
-          <div class="admin-row" style="align-items:center;">
-            <label style="font-size:13px;font-weight:700;white-space:nowrap;">Khoảng thời gian:</label>
-            <select id="dashPeriodSelect" style="max-width:180px;">
+          <div class="admin-row" style="align-items:flex-end;">
+            <select id="dashPeriodSelect" style="max-width:160px;">
               <option value="all">Toàn bộ thời gian</option>
               <option value="month">Tháng này</option>
               <option value="quarter">Quý này</option>
-              <option value="custom">Tùy chỉnh</option>
+              <option value="custom" selected>Tùy chỉnh</option>
             </select>
-            <input type="date" id="dashFrom" style="display:none;max-width:150px;">
-            <input type="date" id="dashTo" style="display:none;max-width:150px;">
-            <button type="button" class="btn-secondary" id="btnDashRefresh" style="padding:8px 14px;font-size:12.5px;">Xem</button>
+            <div class="labeled-field" style="max-width:160px;">
+              <label for="dashFrom">Từ ngày (dd/mm/yyyy)</label>
+              <input type="date" id="dashFrom">
+            </div>
+            <div class="labeled-field" style="max-width:160px;">
+              <label for="dashTo">Đến ngày (dd/mm/yyyy)</label>
+              <input type="date" id="dashTo">
+            </div>
+            <button type="button" class="btn-secondary" id="btnDashRefresh" style="padding:9px 14px;font-size:12.5px;min-height:38px;">Xem</button>
           </div>
           <div class="admin-status-msg" id="dashMsg"></div>
 
@@ -486,12 +491,19 @@ th.donts{background:#FFEBEE;color:#C62828;}
             <th>Chương trình</th><th>Trạng thái</th><th>Module</th><th>Câu hỏi</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã làm bài</th><th>Đạt</th><th>Chưa đạt</th><th>% Đạt</th><th>% Chưa đạt</th><th>% Hoàn thành</th>
           </tr></thead><tbody id="dashProgramsBody"></tbody></table>
 
-          <div class="admin-section-title">📢 Thông báo & Bài test định kỳ</div>
-          <div id="dashAnnPtSummary" class="admin-hint">Đang tải...</div>
+          <div class="admin-section-title">📢 Nội dung thông báo</div>
+          <div class="admin-hint">Đủ điều kiện = số NV thuộc đối tượng thông báo đó áp dụng. Đã xác nhận = số NV đã bấm "Tôi đã đọc và nắm thông tin".</div>
+          <table class="admin-table"><thead><tr><th>Tiêu đề</th><th>Ngày đăng</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã xác nhận</th><th>% Đã xác nhận</th></tr></thead><tbody id="dashAnnouncementsBody"></tbody></table>
+
+          <div class="admin-section-title">📅 Bài test định kỳ</div>
+          <div class="admin-hint">Mỗi bài test định kỳ gắn với 1 chương trình — số liệu tính giống hệt bảng "Chương trình đào tạo" ở trên, chỉ lọc riêng cho chương trình đã liên kết.</div>
+          <table class="admin-table"><thead><tr>
+            <th>Tiêu đề</th><th>Chương trình liên kết</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã làm bài</th><th>Đạt</th><th>Chưa đạt</th><th>% Đạt</th><th>% Hoàn thành</th>
+          </tr></thead><tbody id="dashPeriodicTestsBody"></tbody></table>
         </div>
 
         <div class="admin-panel" id="adminPanelEmployees">
-          <div class="admin-hint">Chỉ nhân viên có trong danh sách này mới vào được trang web (xác thực bằng đúng Tên + Mã NV). Bật "Tải báo cáo" để nhân viên đó thấy nút Extract Data ở trang thống kê. Chức danh dùng để gán đối tượng bắt buộc hoàn thành chương trình/thông báo/bài test và thống kê ở tab Tổng quan.</div>
+          <div class="admin-hint">Chỉ nhân viên có trong danh sách này mới vào được trang web (xác thực bằng đúng Tên + Mã NV). Bật "Tải báo cáo" để nhân viên đó thấy nút Extract Data ở trang thống kê. Mã kho và Chức danh gõ tự do — gõ đúng 1 chức danh đã dùng trước đó sẽ được gợi ý tự động.</div>
           <div class="admin-status-msg" id="empMsg"></div>
           <div class="admin-row"><button type="button" class="btn-icon-only" id="btnExtractEmployees" title="Tải danh sách NV (Excel)">💾</button></div>
           <table class="admin-table"><thead><tr>
@@ -501,14 +513,23 @@ th.donts{background:#FFEBEE;color:#C62828;}
             <input type="text" id="newEmpName" placeholder="Tên NV">
             <input type="text" id="newEmpId" placeholder="Mã NV">
             <input type="text" id="newEmpWarehouse" placeholder="Mã kho (tùy chọn)">
-            <select id="newEmpTitle" style="max-width:160px;"><option value="">-- Chức danh --</option></select>
-            <button type="button" class="btn-icon-only" id="btnAddEmpTitle" title="Thêm chức danh mới vào danh sách" style="width:38px;height:38px;font-size:16px;">+</button>
+            <input type="text" id="newEmpTitle" placeholder="Chức danh (tùy chọn)" list="empTitleOptions">
+            <datalist id="empTitleOptions"></datalist>
             <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;">
               <input type="checkbox" id="newEmpDownload" style="flex:0;min-height:auto;width:auto;"> Tải báo cáo
             </label>
             <button type="button" class="admin-btn-add" id="btnAddEmployee" title="Thêm nhân viên">+</button>
           </div>
-          <div class="admin-hint">Chưa có chức danh cần? Bấm dấu "+" cạnh ô Chức danh để thêm mới — chức danh này sẽ dùng được ở cả đây và mục "Đối tượng bắt buộc hoàn thành" trong Cấu hình bài thi.</div>
+
+          <div class="admin-section-title">📥 Thêm hàng loạt từ Excel</div>
+          <div class="admin-row">
+            <button type="button" class="btn-icon-only" id="btnDownloadEmpTemplate" title="Tải file mẫu (.xlsx)">📄</button>
+            <input type="file" id="bulkEmpFileUpload" accept=".xlsx,.xls">
+          </div>
+          <div class="admin-row"><textarea id="bulkEmpInput" placeholder="Dán dữ liệu Excel vào đây, hoặc chọn file .xlsx ở trên..."></textarea></div>
+          <div class="admin-row">
+            <button type="button" class="btn-secondary" id="btnBulkImportEmployees">Nhập hàng loạt</button>
+          </div>
         </div>
 
         <!-- TAB: Ngân hàng câu hỏi -->
@@ -660,17 +681,23 @@ th.donts{background:#FFEBEE;color:#C62828;}
           <div class="admin-row"><label style="min-width:180px;font-size:13px;font-weight:700;">Điểm đậu (số câu đúng)</label><input type="number" id="cfgPassScore"></div>
           <div class="admin-row"><label style="min-width:180px;font-size:13px;font-weight:700;">Thời gian làm bài (phút)</label><input type="number" id="cfgTimeLimit"></div>
           <div class="admin-row" style="align-items:flex-start;">
-            <label style="min-width:180px;font-size:13px;font-weight:700;padding-top:8px;">Đối tượng bắt buộc hoàn thành</label>
-            <div id="cfgRequiredTitlesWrap" style="display:flex;flex-wrap:wrap;gap:10px;flex:1;"></div>
+            <label style="min-width:180px;font-size:13px;font-weight:700;padding-top:8px;">Đối tượng bắt buộc hoàn thành *</label>
+            <div style="flex:1;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;margin-bottom:8px;white-space:nowrap;">
+                <input type="checkbox" id="cfgTitleAll" style="flex:0;width:auto;min-height:auto;"> ✅ Tất cả nhân viên
+              </label>
+              <div id="cfgRequiredTitlesWrap" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+            </div>
           </div>
-          <div class="admin-hint">Không chọn chức danh nào = áp dụng cho TẤT CẢ nhân viên. Dùng để tính % hoàn thành ở tab "📊 Tổng quan". Chưa thấy chức danh cần? Vào tab "👤 Nhân viên" bấm dấu "+" cạnh ô Chức danh để thêm mới.</div>
+          <div class="admin-hint">Bắt buộc chọn ít nhất 1 mục — hoặc tick "Tất cả nhân viên", hoặc chọn riêng 1/nhiều chức danh cụ thể bên dưới. Dùng để tính % hoàn thành ở tab "📊 Tổng quan". Chưa thấy chức danh cần? Gõ chức danh đó vào ô Chức danh khi thêm nhân viên ở tab "👤 Nhân viên" — chức danh mới sẽ tự hiện ở đây.</div>
           <div class="admin-row"><button type="button" class="btn-secondary" id="btnSaveConfig">Lưu cấu hình</button></div>
         </div>
 
         <!-- TAB: Dữ liệu -->
         <div class="admin-panel" id="adminPanelData">
           <div class="admin-status-msg" id="dataMsg"></div>
-          <div class="admin-hint">Xuất/xóa dữ liệu theo khoảng thời gian nộp bài (giờ Việt Nam). Để trống Từ/Đến = lấy toàn bộ. Xuất Excel luôn lấy TẤT CẢ chương trình. Nên Extract lưu trữ lại trước khi xóa.</div>
+          <div class="admin-hint">Xuất/xóa dữ liệu <strong>kết quả bài thi và người đã làm bài</strong> theo khoảng thời gian nộp bài (giờ Việt Nam). Để trống Từ/Đến = lấy toàn bộ. Xuất Excel luôn lấy TẤT CẢ chương trình. Nên Extract lưu trữ lại trước khi xóa.</div>
+          <div class="program-pills-wrap" id="dataProgramTabs"></div>
           <div class="admin-row">
             <label style="font-size:12.5px;font-weight:700;">Từ ngày-giờ</label>
             <input type="datetime-local" id="dataFrom">
@@ -678,8 +705,8 @@ th.donts{background:#FFEBEE;color:#C62828;}
             <input type="datetime-local" id="dataTo">
           </div>
           <div class="admin-row"><button type="button" class="btn-icon-only" id="btnAdminExportExcel" title="Xuất Excel — tất cả chương trình, theo khoảng thời gian đã chọn">💾</button></div>
-          <div class="admin-row"><button type="button" class="admin-btn-del" id="btnDeleteAllData" style="padding:12px 18px;font-size:13.5px;">🗑️ Xóa dữ liệu chương trình đang chọn (theo khoảng thời gian ở trên)</button></div>
-          <div class="admin-hint">Xóa ở đây chỉ áp dụng cho chương trình đang chọn trong tab "Ngân hàng câu hỏi" ở trên (hiện tại: <strong id="dataProgramLabel">Kỹ Năng Mềm</strong>). Để trống Từ/Đến khi xóa = xóa toàn bộ dữ liệu chương trình đó.</div>
+          <div class="admin-row"><button type="button" class="admin-btn-del" id="btnDeleteAllData" style="padding:12px 18px;font-size:13.5px;">🗑️ Xóa dữ liệu kết quả bài thi của "<span id="dataProgramLabel">Kỹ Năng Mềm</span>" (theo khoảng thời gian ở trên)</button></div>
+          <div class="admin-hint">Xóa ở đây <strong>chỉ xóa kết quả bài thi/người đã nộp bài</strong> (không xóa module, câu hỏi, hay cấu hình) — của đúng chương trình đang chọn bằng pill phía trên. Để trống Từ/Đến khi xóa = xóa toàn bộ dữ liệu kết quả của chương trình đó.</div>
         </div>
 
         <!-- TAB: Thông báo & Bài test định kỳ -->
@@ -2613,6 +2640,7 @@ async function loadAdminDashboardData(){
   await loadEmployeeTitles();
   renderQBankProgramTabs();
   renderContentProgramTabs();
+  renderDataProgramTabs();
   populateConfigProgramSelect();
   populatePeriodicTestProgramSelect();
   setCurrentAdminProgram(PROGRAMS.some(p => p.id === currentAdminProgramId) ? currentAdminProgramId : ''); // đồng bộ nhãn + nạp dữ liệu cho chương trình đang chọn
@@ -2649,14 +2677,18 @@ async function loadDashboardStats(){
   const msgEl = document.getElementById('dashMsg');
   msgEl.textContent = '';
   const period = document.getElementById('dashPeriodSelect').value;
-  let from = null, to = null;
-  if(period === 'custom'){
-    from = dateInputToISO(document.getElementById('dashFrom').value, false);
-    to = dateInputToISO(document.getElementById('dashTo').value, true);
-  } else if(period !== 'all'){
+  // From/To giờ LUÔN hiển thị (không ẩn nữa) — khi chọn preset Tháng/Quý, tự điền sẵn vào 2 ô
+  // này để admin thấy rõ khoảng ngày cụ thể, và vẫn có thể chỉnh tay lại nếu muốn.
+  if(period !== 'custom' && period !== 'all'){
     const range = getPeriodRange(period);
-    from = range.from; to = range.to;
+    if(range.from) document.getElementById('dashFrom').value = range.from.slice(0,10);
+    if(range.to) document.getElementById('dashTo').value = range.to.slice(0,10);
+  } else if(period === 'all'){
+    document.getElementById('dashFrom').value = '';
+    document.getElementById('dashTo').value = '';
   }
+  const from = dateInputToISO(document.getElementById('dashFrom').value, false);
+  const to = dateInputToISO(document.getElementById('dashTo').value, true);
   const token = adminToken();
   try{
     const params = new URLSearchParams();
@@ -2704,8 +2736,31 @@ function renderDashboardStats(data){
     progBody.appendChild(tr);
   });
 
-  document.getElementById('dashAnnPtSummary').textContent =
-    `📢 Thông báo: ${data.announcementsCount} | 📅 Bài test định kỳ: ${data.periodicTestsCount} (trong khoảng thời gian đã chọn).`;
+  const annBody = document.getElementById('dashAnnouncementsBody');
+  if(annBody){
+    annBody.innerHTML = '';
+    (data.announcements || []).forEach(a => {
+      const tr = document.createElement('tr');
+      const audienceText = a.requiredTitles.length ? a.requiredTitles.join(', ') : 'Tất cả NV';
+      const pct = a.eligibleCount ? Math.round((a.confirmedCount / a.eligibleCount) * 100) : null;
+      tr.innerHTML = `<td>${escUser(a.title)}</td><td style="white-space:nowrap;">${toVNTimeString(a.createdAt)}</td><td>${escUser(audienceText)}</td><td>${a.eligibleCount}</td><td>${a.confirmedCount}</td><td>${pct === null ? '—' : pct + '%'}</td>`;
+      annBody.appendChild(tr);
+    });
+  }
+
+  const ptBody = document.getElementById('dashPeriodicTestsBody');
+  if(ptBody){
+    ptBody.innerHTML = '';
+    (data.periodicTests || []).forEach(t => {
+      const tr = document.createElement('tr');
+      const audienceText = t.requiredTitles.length ? t.requiredTitles.join(', ') : 'Tất cả NV';
+      const linkedLabel = (t.linkedProgramId === null || t.linkedProgramId === undefined) ? '(chưa liên kết)' : programName(t.linkedProgramId);
+      const passRateText = t.passRatePct === null ? '—' : t.passRatePct + '%';
+      const completionText = t.completionPct === null ? '—' : t.completionPct + '%';
+      tr.innerHTML = `<td>${escUser(t.title)}</td><td>${escUser(linkedLabel)}</td><td>${escUser(audienceText)}</td><td>${t.eligibleCount}</td><td>${t.submittedCount}</td><td>${t.passedCount}</td><td>${t.failedCount}</td><td>${passRateText}</td><td>${completionText}</td>`;
+      ptBody.appendChild(tr);
+    });
+  }
 }
 // Tải danh sách chương trình thật từ D1 (bảng program_config) — thay cho danh sách cứng
 // trước đây, để phản ánh đúng những chương trình Admin đã tự thêm/xóa.
@@ -2738,6 +2793,7 @@ async function addProgram(){
     await loadPrograms();
     renderQBankProgramTabs();
     renderContentProgramTabs();
+  renderDataProgramTabs();
     populateConfigProgramSelect();
     populatePeriodicTestProgramSelect();
     setCurrentAdminProgram(programId);
@@ -2764,6 +2820,7 @@ async function removeProgram(id, name){
     await loadPrograms();
     renderQBankProgramTabs();
     renderContentProgramTabs();
+  renderDataProgramTabs();
     populateConfigProgramSelect();
     populatePeriodicTestProgramSelect();
     // Nếu vừa xóa đúng chương trình đang chọn, quay về Kỹ Năng Mềm gốc.
@@ -2827,6 +2884,7 @@ function renderProgramPillsInto(containerId){
 }
 function renderQBankProgramTabs(){ renderProgramPillsInto('qBankProgramTabs'); }
 function renderContentProgramTabs(){ renderProgramPillsInto('contentProgramTabs'); }
+function renderDataProgramTabs(){ renderProgramPillsInto('dataProgramTabs'); }
 function populateConfigProgramSelect(){
   const sel = document.getElementById('cfgProgramSelect');
   sel.innerHTML = '';
@@ -3218,29 +3276,27 @@ async function loadStorageInfo(){
    ================================================================ */
 let employeesCache = [];
 let employeeTitlesCache = [];
-// Tải danh sách chức danh thật từ D1 (bảng employee_titles) — thay cho danh sách cứng
-// BA/VAN/WA/SSM trước đây, để Admin có thể tự thêm chức danh mới bất kỳ lúc nào.
+// Tải danh sách chức danh thật từ D1 (bảng employee_titles) — danh sách này TỰ ĐỘNG lớn dần
+// mỗi khi Admin gõ 1 chức danh mới vào ô Chức danh (xem rememberEmployeeTitle() ở worker.js),
+// dùng để gợi ý (datalist) và để dựng checkbox "Đối tượng bắt buộc hoàn thành" ở Cấu hình bài thi.
 async function loadEmployeeTitles(){
   const token = adminToken();
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/admin/employee-titles`, { headers: {'Authorization': 'Bearer ' + token} });
     employeeTitlesCache = await res.json();
-    renderEmpTitleSelect();
+    renderEmpTitleDatalist();
     renderCfgTitleCheckboxes();
   }catch(err){ console.error('Lỗi tải danh sách chức danh:', err); }
 }
-function renderEmpTitleSelect(){
-  const sel = document.getElementById('newEmpTitle');
-  if(!sel) return;
-  const current = sel.value;
-  sel.innerHTML = '<option value="">-- Chức danh --</option>';
+function renderEmpTitleDatalist(){
+  const dl = document.getElementById('empTitleOptions');
+  if(!dl) return;
+  dl.innerHTML = '';
   employeeTitlesCache.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t.name;
-    opt.textContent = t.name;
-    sel.appendChild(opt);
+    dl.appendChild(opt);
   });
-  sel.value = current;
 }
 function renderCfgTitleCheckboxes(){
   const wrap = document.getElementById('cfgRequiredTitlesWrap');
@@ -3250,26 +3306,9 @@ function renderCfgTitleCheckboxes(){
     const label = document.createElement('label');
     label.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;';
     label.innerHTML = `<input type="checkbox" class="cfg-title-chk" value="${escUser(t.name)}" style="flex:0;width:auto;min-height:auto;"> ${escUser(t.name)}`;
+    label.querySelector('.cfg-title-chk').addEventListener('change', onCfgTitleChkChange);
     wrap.appendChild(label);
   });
-}
-async function addEmployeeTitle(){
-  const name = window.prompt('Tên chức danh mới (VD: "QA", "Kế toán"...):');
-  if(!name || !name.trim()) return;
-  const token = adminToken();
-  try{
-    const res = await fetch(`${WORKER_BASE_URL}/api/admin/employee-titles`, {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-      body: JSON.stringify({ name: name.trim() })
-    });
-    const data = await res.json();
-    if(!res.ok){ alert(data.error || 'Không thêm được chức danh.'); return; }
-    await loadEmployeeTitles();
-    document.getElementById('newEmpTitle').value = name.trim();
-  }catch(err){
-    console.error('Lỗi thêm chức danh:', err);
-    alert('Không kết nối được máy chủ.');
-  }
 }
 function extractEmployeesToExcel(){
   if(!employeesCache.length){ alert('Chưa có nhân viên nào để xuất.'); return; }
@@ -3284,6 +3323,88 @@ function extractEmployeesToExcel(){
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'DanhSachNhanVien');
   XLSX.writeFile(wb, `DanhSachNhanVien_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+// Tải file mẫu .xlsx đúng định dạng cột để admin điền rồi upload lại.
+function downloadEmployeeTemplate(){
+  const sampleRows = [
+    ['Tên NV', 'Mã NV', 'Mã kho', 'Chức danh', 'Tải báo cáo (Có/Không)'],
+    ['Nguyễn Văn A', 'NV001', 'SGN01S', 'BA', 'Không'],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(sampleRows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'MauNhanVien');
+  XLSX.writeFile(wb, 'Mau_DanhSachNhanVien.xlsx');
+}
+// Đọc file Excel admin vừa chọn, đổ vào textarea (dạng phân cách Tab) để xem lại trước khi
+// bấm "Nhập hàng loạt" — không tự động gửi lên server ngay khi chọn file.
+function handleBulkEmpFileUpload(e){
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try{
+      const data = new Uint8Array(evt.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false });
+      // Bỏ dòng tiêu đề nếu dòng đầu không có Mã NV hợp lệ ở cột 2.
+      const dataRows = rows.filter((r, idx) => idx > 0 || (r[1] && String(r[1]).trim()));
+      const lines = dataRows.map(r => r.map(c => (c ?? '').toString()).join('\t'));
+      document.getElementById('bulkEmpInput').value = lines.join('\n');
+      document.getElementById('empMsg').textContent = `Đã đọc ${lines.length} dòng từ file — kiểm tra lại rồi bấm "Nhập hàng loạt".`;
+      document.getElementById('empMsg').style.color = 'var(--pass-green)';
+    }catch(err){
+      console.error('Lỗi đọc file Excel:', err);
+      document.getElementById('empMsg').textContent = 'Không đọc được file — kiểm tra đúng định dạng .xlsx.';
+      document.getElementById('empMsg').style.color = 'var(--fail-red)';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+async function bulkImportEmployees(){
+  const msgEl = document.getElementById('empMsg');
+  msgEl.textContent = '';
+  const raw = document.getElementById('bulkEmpInput').value;
+  if(!raw.trim()){ msgEl.textContent = 'Chưa dán dữ liệu hoặc chưa chọn file.'; msgEl.style.color = 'var(--fail-red)'; return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const items = lines.map(line => {
+    const cols = line.split('\t');
+    const [name, employeeId, warehouseCode, title, downloadText] = cols;
+    if(!name || !employeeId) return null;
+    return {
+      name: name.trim(),
+      employeeId: employeeId.trim(),
+      warehouseCode: (warehouseCode || '').trim(),
+      title: (title || '').trim(),
+      canDownloadReports: /^(có|co|yes|true|1)$/i.test((downloadText || '').trim()),
+    };
+  }).filter(Boolean);
+  if(!items.length){
+    msgEl.textContent = 'Không đọc được dòng nhân viên hợp lệ nào — kiểm tra lại định dạng (các cột phân cách bằng Tab).';
+    msgEl.style.color = 'var(--fail-red)';
+    return;
+  }
+  const token = adminToken();
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/employees`, {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+      body: JSON.stringify(items)
+    });
+    const data = await res.json();
+    if(!res.ok){ msgEl.textContent = data.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
+    let text = `Đã thêm ${data.inserted}/${items.length} nhân viên.`;
+    if(data.errors && data.errors.length) text += ` Bỏ qua ${data.errors.length} dòng lỗi: ${data.errors.slice(0,3).join('; ')}${data.errors.length > 3 ? '...' : ''}`;
+    msgEl.textContent = text;
+    msgEl.style.color = data.errors && data.errors.length ? 'var(--fail-red)' : 'var(--pass-green)';
+    document.getElementById('bulkEmpInput').value = '';
+    document.getElementById('bulkEmpFileUpload').value = '';
+    loadEmployees();
+    loadEmployeeTitles();
+  }catch(err){
+    console.error('Lỗi nhập hàng loạt nhân viên:', err);
+    msgEl.textContent = 'Không kết nối được máy chủ.';
+    msgEl.style.color = 'var(--fail-red)';
+  }
 }
 let editingEmployeeId = null;
 async function loadEmployees(){
@@ -3629,14 +3750,35 @@ async function loadProgramConfigAdmin(){
     document.getElementById('cfgTimeLimit').value = cfg.time_limit_minutes || 20;
     let requiredTitles = [];
     try{ requiredTitles = JSON.parse(cfg.required_titles || '[]'); }catch(e){ requiredTitles = []; }
-    document.querySelectorAll('.cfg-title-chk').forEach(chk => { chk.checked = requiredTitles.includes(chk.value); });
+    const isAll = requiredTitles.length === 0;
+    document.getElementById('cfgTitleAll').checked = isAll;
+    document.querySelectorAll('.cfg-title-chk').forEach(chk => { chk.checked = !isAll && requiredTitles.includes(chk.value); chk.disabled = isAll; });
   }catch(err){ console.error('Lỗi tải cấu hình chương trình:', err); }
+}
+// Bấm "Tất cả nhân viên" -> tự bỏ chọn + khóa các checkbox chức danh riêng lẻ (loại trừ lẫn nhau).
+function onCfgTitleAllChange(){
+  const isAll = document.getElementById('cfgTitleAll').checked;
+  document.querySelectorAll('.cfg-title-chk').forEach(chk => {
+    if(isAll) chk.checked = false;
+    chk.disabled = isAll;
+  });
+}
+// Bấm bất kỳ checkbox chức danh riêng lẻ nào -> tự bỏ chọn "Tất cả nhân viên".
+function onCfgTitleChkChange(){
+  const anyChecked = [...document.querySelectorAll('.cfg-title-chk')].some(chk => chk.checked);
+  if(anyChecked) document.getElementById('cfgTitleAll').checked = false;
 }
 async function saveProgramConfigAdmin(){
   const msgEl = document.getElementById('cfgMsg');
   msgEl.textContent = '';
   const token = adminToken();
-  const requiredTitles = [...document.querySelectorAll('.cfg-title-chk:checked')].map(chk => chk.value);
+  const isAll = document.getElementById('cfgTitleAll').checked;
+  const requiredTitles = isAll ? [] : [...document.querySelectorAll('.cfg-title-chk:checked')].map(chk => chk.value);
+  if(!isAll && requiredTitles.length === 0){
+    msgEl.textContent = 'Vui lòng chọn ít nhất 1 đối tượng — tick "Tất cả nhân viên" hoặc chọn riêng 1 chức danh cụ thể.';
+    msgEl.style.color = 'var(--fail-red)';
+    return;
+  }
   const body = {
     programId: currentAdminProgramId,
     programName: programName(currentAdminProgramId),
@@ -3801,11 +3943,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnBackFromAnnouncement').addEventListener('click', backFromAnnouncementDetail);
   document.getElementById('btnAddAnnouncement').addEventListener('click', addAnnouncement);
   document.getElementById('btnAddPeriodicTest').addEventListener('click', addPeriodicTest);
-  document.getElementById('dashPeriodSelect').addEventListener('change', () => {
-    const isCustom = document.getElementById('dashPeriodSelect').value === 'custom';
-    document.getElementById('dashFrom').style.display = isCustom ? 'inline-block' : 'none';
-    document.getElementById('dashTo').style.display = isCustom ? 'inline-block' : 'none';
-  });
+  document.getElementById('dashPeriodSelect').addEventListener('change', loadDashboardStats);
   document.getElementById('btnDashRefresh').addEventListener('click', loadDashboardStats);
   document.getElementById('btnCloseAdmin').addEventListener('click', closeAdminModal);
 
@@ -3824,8 +3962,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ----- Admin: nhân viên / câu hỏi / cấu hình / dữ liệu -----
   document.getElementById('btnAddEmployee').addEventListener('click', saveEmployee);
-  document.getElementById('btnAddEmpTitle').addEventListener('click', addEmployeeTitle);
   document.getElementById('btnExtractEmployees').addEventListener('click', extractEmployeesToExcel);
+  document.getElementById('btnDownloadEmpTemplate').addEventListener('click', downloadEmployeeTemplate);
+  document.getElementById('bulkEmpFileUpload').addEventListener('change', handleBulkEmpFileUpload);
+  document.getElementById('btnBulkImportEmployees').addEventListener('click', bulkImportEmployees);
+  document.getElementById('cfgTitleAll').addEventListener('change', onCfgTitleAllChange);
   document.getElementById('btnAddQuestion').addEventListener('click', saveQuestion);
   document.getElementById('btnExtractQuestions').addEventListener('click', extractQuestionsToExcel);
   document.getElementById('btnDownloadTemplate').addEventListener('click', downloadQuestionTemplate);
