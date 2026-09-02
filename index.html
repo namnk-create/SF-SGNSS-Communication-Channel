@@ -481,8 +481,9 @@ th.donts{background:#FFEBEE;color:#C62828;}
           </div>
 
           <div class="admin-section-title">🎓 Chương trình đào tạo</div>
+          <div class="admin-hint">Đủ điều kiện = số NV thuộc đối tượng bắt buộc. Đã làm bài = số NV đã nộp ít nhất 1 bài (dù đạt hay không). % Đạt/% Chưa đạt tính trên số NV ĐÃ LÀM BÀI. % Hoàn thành tính trên số NV ĐỦ ĐIỀU KIỆN (bao gồm cả người chưa làm).</div>
           <table class="admin-table"><thead><tr>
-            <th>Chương trình</th><th>Trạng thái</th><th>Module</th><th>Câu hỏi</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã đạt</th><th>% Hoàn thành</th>
+            <th>Chương trình</th><th>Trạng thái</th><th>Module</th><th>Câu hỏi</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã làm bài</th><th>Đạt</th><th>Chưa đạt</th><th>% Đạt</th><th>% Chưa đạt</th><th>% Hoàn thành</th>
           </tr></thead><tbody id="dashProgramsBody"></tbody></table>
 
           <div class="admin-section-title">📢 Thông báo & Bài test định kỳ</div>
@@ -500,15 +501,14 @@ th.donts{background:#FFEBEE;color:#C62828;}
             <input type="text" id="newEmpName" placeholder="Tên NV">
             <input type="text" id="newEmpId" placeholder="Mã NV">
             <input type="text" id="newEmpWarehouse" placeholder="Mã kho (tùy chọn)">
-            <input type="text" id="newEmpTitle" placeholder="Chức danh (VD: BA, VAN, WA, SSM)" list="empTitleOptions">
-            <datalist id="empTitleOptions">
-              <option value="BA"><option value="VAN"><option value="WA"><option value="SSM">
-            </datalist>
+            <select id="newEmpTitle" style="max-width:160px;"><option value="">-- Chức danh --</option></select>
+            <button type="button" class="btn-icon-only" id="btnAddEmpTitle" title="Thêm chức danh mới vào danh sách" style="width:38px;height:38px;font-size:16px;">+</button>
             <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;">
               <input type="checkbox" id="newEmpDownload" style="flex:0;min-height:auto;width:auto;"> Tải báo cáo
             </label>
             <button type="button" class="admin-btn-add" id="btnAddEmployee" title="Thêm nhân viên">+</button>
           </div>
+          <div class="admin-hint">Chưa có chức danh cần? Bấm dấu "+" cạnh ô Chức danh để thêm mới — chức danh này sẽ dùng được ở cả đây và mục "Đối tượng bắt buộc hoàn thành" trong Cấu hình bài thi.</div>
         </div>
 
         <!-- TAB: Ngân hàng câu hỏi -->
@@ -661,14 +661,9 @@ th.donts{background:#FFEBEE;color:#C62828;}
           <div class="admin-row"><label style="min-width:180px;font-size:13px;font-weight:700;">Thời gian làm bài (phút)</label><input type="number" id="cfgTimeLimit"></div>
           <div class="admin-row" style="align-items:flex-start;">
             <label style="min-width:180px;font-size:13px;font-weight:700;padding-top:8px;">Đối tượng bắt buộc hoàn thành</label>
-            <div id="cfgRequiredTitlesWrap" style="display:flex;flex-wrap:wrap;gap:10px;flex:1;">
-              <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;"><input type="checkbox" class="cfg-title-chk" value="BA" style="flex:0;width:auto;min-height:auto;"> BA</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;"><input type="checkbox" class="cfg-title-chk" value="VAN" style="flex:0;width:auto;min-height:auto;"> VAN</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;"><input type="checkbox" class="cfg-title-chk" value="WA" style="flex:0;width:auto;min-height:auto;"> WA</label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;"><input type="checkbox" class="cfg-title-chk" value="SSM" style="flex:0;width:auto;min-height:auto;"> SSM</label>
-            </div>
+            <div id="cfgRequiredTitlesWrap" style="display:flex;flex-wrap:wrap;gap:10px;flex:1;"></div>
           </div>
-          <div class="admin-hint">Không chọn chức danh nào = áp dụng cho TẤT CẢ nhân viên. Dùng để tính % hoàn thành ở tab "📊 Tổng quan".</div>
+          <div class="admin-hint">Không chọn chức danh nào = áp dụng cho TẤT CẢ nhân viên. Dùng để tính % hoàn thành ở tab "📊 Tổng quan". Chưa thấy chức danh cần? Vào tab "👤 Nhân viên" bấm dấu "+" cạnh ô Chức danh để thêm mới.</div>
           <div class="admin-row"><button type="button" class="btn-secondary" id="btnSaveConfig">Lưu cấu hình</button></div>
         </div>
 
@@ -691,16 +686,17 @@ th.donts{background:#FFEBEE;color:#C62828;}
         <div class="admin-panel" id="adminPanelAnnouncements">
           <div class="admin-status-msg" id="annMsg"></div>
           <div class="admin-section-title">📢 Nội dung thông báo</div>
-          <div class="admin-hint">Hiện dạng danh sách xổ ngay trong hamburger menu ở trang chủ, mục mới nhất luôn nằm trên cùng.</div>
-          <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th></th></tr></thead><tbody id="announcementTableBody"></tbody></table>
+          <div class="admin-hint">Hiện dạng danh sách xổ ngay trong hamburger menu ở trang chủ, mục mới nhất luôn nằm trên cùng. Nhân viên bấm vào 1 thông báo sẽ mở trang chi tiết và cần bấm "Xác nhận đã đọc" để công ty theo dõi được ai đã nắm thông tin.</div>
+          <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th>Nội dung</th><th></th></tr></thead><tbody id="announcementTableBody"></tbody></table>
           <div class="admin-row"><input type="text" id="newAnnTitle" placeholder="Tiêu đề thông báo"></div>
-          <div class="admin-row"><textarea id="newAnnContent" placeholder="Nội dung chi tiết (tùy chọn)" style="min-height:70px;"></textarea></div>
+          <div class="admin-row"><textarea id="newAnnContent" placeholder="Nội dung chi tiết" style="min-height:70px;"></textarea></div>
           <div class="admin-row"><button type="button" class="admin-btn-add" id="btnAddAnnouncement" title="Thêm thông báo">+</button></div>
 
           <div class="admin-section-title">📅 Bài test định kỳ</div>
-          <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th></th></tr></thead><tbody id="periodicTestTableBody"></tbody></table>
-          <div class="admin-row"><input type="text" id="newPtTitle" placeholder="Tiêu đề bài test định kỳ"></div>
-          <div class="admin-row"><textarea id="newPtContent" placeholder="Nội dung chi tiết (tùy chọn)" style="min-height:70px;"></textarea></div>
+          <div class="admin-hint">Chọn 1 chương trình đào tạo đã có sẵn (nội dung câu hỏi/cấu hình lấy từ tab "Ngân hàng câu hỏi" và "Cấu hình bài thi" của chính chương trình đó) — nhân viên bấm vào mục này trên menu sẽ được đưa thẳng vào làm bài thi của chương trình đã chọn.</div>
+          <table class="admin-table"><thead><tr><th>Ngày</th><th>Chương trình</th><th>Ghi chú</th><th></th></tr></thead><tbody id="periodicTestTableBody"></tbody></table>
+          <div class="admin-row"><select id="newPtProgram" style="flex:1;"></select></div>
+          <div class="admin-row"><textarea id="newPtContent" placeholder="Ghi chú/hướng dẫn thêm (tùy chọn)" style="min-height:70px;"></textarea></div>
           <div class="admin-row"><button type="button" class="admin-btn-add" id="btnAddPeriodicTest" title="Thêm bài test định kỳ">+</button></div>
         </div>
 
@@ -776,6 +772,21 @@ th.donts{background:#FFEBEE;color:#C62828;}
   <h2 id="t-exit-screen-title"></h2>
   <p id="t-exit-screen-msg"></p>
   <img src="data:image/jpeg;base64,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" alt="SF Express" class="exit-screen-img">
+</div>
+<!-- Màn hình chi tiết 1 thông báo — hiện khi bấm vào 1 mục trong "Nội dung thông báo" trên
+     hamburger menu. Nhân viên cần bấm "Xác nhận đã đọc" để công ty theo dõi được ai đã nắm
+     thông tin (ghi vào bảng announcement_reads, mỗi NV chỉ cần xác nhận 1 lần cho mỗi thông báo). -->
+<div id="announcementDetailScreen" style="display:none;padding:20px 0;">
+  <a href="javascript:void(0)" id="btnBackFromAnnouncement" style="display:inline-block;margin-bottom:16px;font-size:13px;color:var(--sf-red);font-weight:700;text-decoration:none;">← Về trang chính</a>
+  <div style="background:var(--sf-grey);border-radius:10px;padding:20px;">
+    <div style="font-size:11.5px;color:#888;margin-bottom:6px;" id="annDetailDate"></div>
+    <h2 style="margin:0 0 14px 0;color:var(--sf-black);font-size:clamp(17px,4.2vw,21px);" id="annDetailTitle"></h2>
+    <div style="font-size:14px;line-height:1.7;color:var(--sf-dark-grey);white-space:pre-wrap;" id="annDetailContent"></div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--sf-border);border-radius:10px;padding:18px;margin-top:16px;text-align:center;">
+    <div style="font-size:13.5px;font-weight:700;margin-bottom:12px;" id="annDetailReadStatus"></div>
+    <button type="button" class="btn-start" id="btnConfirmAnnouncementRead" style="max-width:340px;">✅ Tôi đã đọc và nắm thông tin</button>
+  </div>
 </div>
 </div>
 
@@ -2217,7 +2228,7 @@ async function loadDynamicMenu(){
   }
 }
 /* ---- Nội dung thông báo / Bài test định kỳ — accordion ngay trong hamburger menu ---- */
-function renderMenuAccordionList(bodyEl, rows){
+function renderMenuAccordionList(bodyEl, rows, onItemClick){
   bodyEl.innerHTML = '';
   if(!rows.length){
     bodyEl.innerHTML = '<div class="menu-accordion-empty">Chưa có nội dung nào.</div>';
@@ -2226,24 +2237,41 @@ function renderMenuAccordionList(bodyEl, rows){
   rows.forEach(r => {
     const item = document.createElement('div');
     item.className = 'menu-accordion-item';
+    if(onItemClick) item.style.cursor = 'pointer';
     item.innerHTML = `<div class="menu-accordion-item-date">${toVNTimeString(r.created_at)}</div>
       <div class="menu-accordion-item-title">${escUser(r.title)}</div>
       ${r.content ? `<div class="menu-accordion-item-content">${escUser(r.content)}</div>` : ''}`;
+    if(onItemClick) item.addEventListener('click', () => onItemClick(r));
     bodyEl.appendChild(item);
   });
 }
+let announcementsMenuCache = [];
 async function loadAnnouncementsMenu(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/announcements`);
-    const rows = await res.json();
-    renderMenuAccordionList(document.getElementById('menuAnnouncementsBody'), rows);
+    announcementsMenuCache = await res.json();
+    renderMenuAccordionList(document.getElementById('menuAnnouncementsBody'), announcementsMenuCache, (r) => {
+      toggleMenu(true);
+      showAnnouncementDetail(r.id);
+    });
   }catch(err){ console.error('Lỗi tải thông báo:', err); }
 }
 async function loadPeriodicTestsMenu(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/periodic-tests`);
     const rows = await res.json();
-    renderMenuAccordionList(document.getElementById('menuPeriodicTestsBody'), rows);
+    renderMenuAccordionList(document.getElementById('menuPeriodicTestsBody'), rows, (r) => {
+      // Bài test định kỳ luôn gắn với 1 chương trình có sẵn — bấm vào là chuyển thẳng sang
+      // làm bài của đúng chương trình đó (dùng lại Ngân hàng câu hỏi + Cấu hình bài thi).
+      if(r.linked_program_id === null || r.linked_program_id === undefined){
+        alert('Bài test này chưa được Admin liên kết với chương trình nào.');
+        return;
+      }
+      const url = new URL(location.href);
+      if(r.linked_program_id === '') url.searchParams.delete('program');
+      else url.searchParams.set('program', r.linked_program_id);
+      location.href = url.toString();
+    });
   }catch(err){ console.error('Lỗi tải bài test định kỳ:', err); }
 }
 function toggleMenuAccordion(headerId, bodyId){
@@ -2252,6 +2280,56 @@ function toggleMenuAccordion(headerId, bodyId){
   const willOpen = body.style.display === 'none';
   body.style.display = willOpen ? 'block' : 'none';
   header.classList.toggle('open', willOpen);
+}
+
+/* ================= MÀN HÌNH CHI TIẾT THÔNG BÁO + XÁC NHẬN ĐÃ ĐỌC ================= */
+async function showAnnouncementDetail(id){
+  const ann = announcementsMenuCache.find(a => a.id === id);
+  if(!ann) return;
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('announcementDetailScreen').style.display = 'block';
+  document.getElementById('annDetailDate').textContent = toVNTimeString(ann.created_at);
+  document.getElementById('annDetailTitle').textContent = ann.title;
+  document.getElementById('annDetailContent').textContent = ann.content || '(Không có nội dung chi tiết)';
+  window.scrollTo(0, 0);
+
+  const statusEl = document.getElementById('annDetailReadStatus');
+  const btnConfirm = document.getElementById('btnConfirmAnnouncementRead');
+  if(!GATE_EMPLOYEE || !GATE_EMPLOYEE.employeeId){
+    statusEl.textContent = 'Cần xác thực nhân viên để xác nhận đã đọc.';
+    btnConfirm.style.display = 'none';
+    return;
+  }
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/announcement-reads?announcementId=${id}&employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`);
+    const data = await res.json();
+    if(data.read){
+      statusEl.textContent = `✅ Bạn đã xác nhận đọc thông báo này lúc ${toVNTimeString(data.readAt)}.`;
+      statusEl.style.color = 'var(--pass-green)';
+      btnConfirm.style.display = 'none';
+    } else {
+      statusEl.textContent = 'Bạn chưa xác nhận đã đọc thông báo này.';
+      statusEl.style.color = 'var(--sf-dark-grey)';
+      btnConfirm.style.display = 'inline-block';
+      btnConfirm.dataset.annId = id;
+    }
+  }catch(err){ console.error('Lỗi kiểm tra trạng thái đã đọc:', err); }
+}
+async function confirmAnnouncementRead(){
+  const btnConfirm = document.getElementById('btnConfirmAnnouncementRead');
+  const id = parseInt(btnConfirm.dataset.annId, 10);
+  if(!GATE_EMPLOYEE || !GATE_EMPLOYEE.employeeId) return;
+  try{
+    await fetch(`${WORKER_BASE_URL}/api/announcement-reads`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ announcementId: id, employeeId: GATE_EMPLOYEE.employeeId })
+    });
+    showAnnouncementDetail(id);
+  }catch(err){ console.error('Lỗi xác nhận đã đọc:', err); }
+}
+function backFromAnnouncementDetail(){
+  document.getElementById('announcementDetailScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
 }
 
 /* ================================================================
@@ -2532,9 +2610,11 @@ function switchAdminTab(tabName){
 }
 async function loadAdminDashboardData(){
   await loadPrograms();
+  await loadEmployeeTitles();
   renderQBankProgramTabs();
   renderContentProgramTabs();
   populateConfigProgramSelect();
+  populatePeriodicTestProgramSelect();
   setCurrentAdminProgram(PROGRAMS.some(p => p.id === currentAdminProgramId) ? currentAdminProgramId : ''); // đồng bộ nhãn + nạp dữ liệu cho chương trình đang chọn
   loadEmployees();
   loadStorageInfo();
@@ -2617,8 +2697,10 @@ function renderDashboardStats(data){
     const tr = document.createElement('tr');
     const statusText = p.status === 'live' ? '✅ Live' : '🔜 Sắp có';
     const audienceText = p.requiredTitles.length ? p.requiredTitles.join(', ') : 'Tất cả NV';
-    const pctText = p.completionPct === null ? '—' : p.completionPct + '%';
-    tr.innerHTML = `<td>${escUser(p.programName)}</td><td>${statusText}</td><td>${p.moduleCount}</td><td>${p.questionCount}</td><td>${escUser(audienceText)}</td><td>${p.eligibleCount}</td><td>${p.passedCount}</td><td>${pctText}</td>`;
+    const completionText = p.completionPct === null ? '—' : p.completionPct + '%';
+    const passRateText = p.passRatePct === null ? '—' : p.passRatePct + '%';
+    const failRateText = p.failRatePct === null ? '—' : p.failRatePct + '%';
+    tr.innerHTML = `<td>${escUser(p.programName)}</td><td>${statusText}</td><td>${p.moduleCount}</td><td>${p.questionCount}</td><td>${escUser(audienceText)}</td><td>${p.eligibleCount}</td><td>${p.submittedCount}</td><td>${p.passedCount}</td><td>${p.failedCount}</td><td>${passRateText}</td><td>${failRateText}</td><td>${completionText}</td>`;
     progBody.appendChild(tr);
   });
 
@@ -2657,6 +2739,7 @@ async function addProgram(){
     renderQBankProgramTabs();
     renderContentProgramTabs();
     populateConfigProgramSelect();
+    populatePeriodicTestProgramSelect();
     setCurrentAdminProgram(programId);
   }catch(err){
     console.error('Lỗi thêm chương trình:', err);
@@ -2682,6 +2765,7 @@ async function removeProgram(id, name){
     renderQBankProgramTabs();
     renderContentProgramTabs();
     populateConfigProgramSelect();
+    populatePeriodicTestProgramSelect();
     // Nếu vừa xóa đúng chương trình đang chọn, quay về Kỹ Năng Mềm gốc.
     setCurrentAdminProgram(currentAdminProgramId === id ? '' : currentAdminProgramId);
   }catch(err){
@@ -3030,23 +3114,45 @@ async function loadPeriodicTestsAdmin(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests`, { headers: {'Authorization': 'Bearer ' + token} });
     const rows = await res.json();
-    renderAdminListTable('periodicTestTableBody', rows, deletePeriodicTest);
+    renderPeriodicTestTable(rows);
   }catch(err){ console.error('Lỗi tải bài test định kỳ:', err); }
+}
+function renderPeriodicTestTable(rows){
+  const tbody = document.getElementById('periodicTestTableBody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const progLabel = r.linked_program_id !== null ? programName(r.linked_program_id) : escUser(r.title);
+    tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(progLabel)}</td><td>${escUser(r.content||'') || '<span style="color:#999;">(trống)</span>'}</td>
+      <td><button type="button" class="icon-btn-del" data-del-id="${r.id}" title="Xóa">🗑️</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-del-id]').forEach(b => b.addEventListener('click', () => deletePeriodicTest(parseInt(b.dataset.delId,10))));
+}
+function populatePeriodicTestProgramSelect(){
+  const sel = document.getElementById('newPtProgram');
+  if(!sel) return;
+  sel.innerHTML = '';
+  PROGRAMS.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name;
+    sel.appendChild(opt);
+  });
 }
 async function addPeriodicTest(){
   const msgEl = document.getElementById('annMsg');
   msgEl.textContent = '';
-  const title = document.getElementById('newPtTitle').value.trim();
+  const linkedProgramId = document.getElementById('newPtProgram').value;
   const content = document.getElementById('newPtContent').value.trim();
-  if(!title){ msgEl.textContent = 'Vui lòng nhập tiêu đề.'; msgEl.style.color = 'var(--fail-red)'; return; }
+  const title = programName(linkedProgramId); // tiêu đề = tên chương trình đã chọn, không gõ tay
   const token = adminToken();
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests`, {
       method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-      body: JSON.stringify({ title, content })
+      body: JSON.stringify({ title, content, linkedProgramId })
     });
     if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
-    document.getElementById('newPtTitle').value = '';
     document.getElementById('newPtContent').value = '';
     msgEl.textContent = 'Đã thêm bài test định kỳ.';
     msgEl.style.color = 'var(--pass-green)';
@@ -3071,7 +3177,9 @@ function renderAdminListTable(tbodyId, rows, onDelete){
   tbody.innerHTML = '';
   rows.forEach(r => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(r.title)}</td>
+    const full = r.content || '';
+    const shortContent = full.length > 60 ? full.slice(0,60) + '…' : full;
+    tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(r.title)}</td><td>${escUser(shortContent) || '<span style="color:#999;">(trống)</span>'}</td>
       <td><button type="button" class="icon-btn-del" data-del-id="${r.id}" title="Xóa">🗑️</button></td>`;
     tbody.appendChild(tr);
   });
@@ -3109,6 +3217,60 @@ async function loadStorageInfo(){
    ===== ADMIN: QUẢN LÝ NHÂN VIÊN =====
    ================================================================ */
 let employeesCache = [];
+let employeeTitlesCache = [];
+// Tải danh sách chức danh thật từ D1 (bảng employee_titles) — thay cho danh sách cứng
+// BA/VAN/WA/SSM trước đây, để Admin có thể tự thêm chức danh mới bất kỳ lúc nào.
+async function loadEmployeeTitles(){
+  const token = adminToken();
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/employee-titles`, { headers: {'Authorization': 'Bearer ' + token} });
+    employeeTitlesCache = await res.json();
+    renderEmpTitleSelect();
+    renderCfgTitleCheckboxes();
+  }catch(err){ console.error('Lỗi tải danh sách chức danh:', err); }
+}
+function renderEmpTitleSelect(){
+  const sel = document.getElementById('newEmpTitle');
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">-- Chức danh --</option>';
+  employeeTitlesCache.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.name;
+    opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+  sel.value = current;
+}
+function renderCfgTitleCheckboxes(){
+  const wrap = document.getElementById('cfgRequiredTitlesWrap');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  employeeTitlesCache.forEach(t => {
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;flex:0;white-space:nowrap;';
+    label.innerHTML = `<input type="checkbox" class="cfg-title-chk" value="${escUser(t.name)}" style="flex:0;width:auto;min-height:auto;"> ${escUser(t.name)}`;
+    wrap.appendChild(label);
+  });
+}
+async function addEmployeeTitle(){
+  const name = window.prompt('Tên chức danh mới (VD: "QA", "Kế toán"...):');
+  if(!name || !name.trim()) return;
+  const token = adminToken();
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/employee-titles`, {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+      body: JSON.stringify({ name: name.trim() })
+    });
+    const data = await res.json();
+    if(!res.ok){ alert(data.error || 'Không thêm được chức danh.'); return; }
+    await loadEmployeeTitles();
+    document.getElementById('newEmpTitle').value = name.trim();
+  }catch(err){
+    console.error('Lỗi thêm chức danh:', err);
+    alert('Không kết nối được máy chủ.');
+  }
+}
 function extractEmployeesToExcel(){
   if(!employeesCache.length){ alert('Chưa có nhân viên nào để xuất.'); return; }
   const rows = employeesCache.map(e => ({
@@ -3635,6 +3797,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('menuItemAdmin').addEventListener('click', () => { toggleMenu(true); openAdminModal(); });
   document.getElementById('menuAnnouncementsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuAnnouncementsHeader','menuAnnouncementsBody'); });
   document.getElementById('menuPeriodicTestsHeader').addEventListener('click', (e) => { e.stopPropagation(); toggleMenuAccordion('menuPeriodicTestsHeader','menuPeriodicTestsBody'); });
+  document.getElementById('btnConfirmAnnouncementRead').addEventListener('click', confirmAnnouncementRead);
+  document.getElementById('btnBackFromAnnouncement').addEventListener('click', backFromAnnouncementDetail);
   document.getElementById('btnAddAnnouncement').addEventListener('click', addAnnouncement);
   document.getElementById('btnAddPeriodicTest').addEventListener('click', addPeriodicTest);
   document.getElementById('dashPeriodSelect').addEventListener('change', () => {
@@ -3660,6 +3824,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ----- Admin: nhân viên / câu hỏi / cấu hình / dữ liệu -----
   document.getElementById('btnAddEmployee').addEventListener('click', saveEmployee);
+  document.getElementById('btnAddEmpTitle').addEventListener('click', addEmployeeTitle);
   document.getElementById('btnExtractEmployees').addEventListener('click', extractEmployeesToExcel);
   document.getElementById('btnAddQuestion').addEventListener('click', saveQuestion);
   document.getElementById('btnExtractQuestions').addEventListener('click', extractQuestionsToExcel);
