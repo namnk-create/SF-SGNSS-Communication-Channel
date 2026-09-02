@@ -268,6 +268,13 @@ export default {
         if (url.pathname === "/api/admin/export" && request.method === "GET")
           return handleExport(url, env);
 
+        if (url.pathname === "/api/admin/programs/detail-export" && request.method === "GET")
+          return handleProgramDetailExport(url, env);
+        if (url.pathname === "/api/admin/announcements/detail-export" && request.method === "GET")
+          return handleAnnouncementDetailExport(url, env);
+        if (url.pathname === "/api/admin/periodic-tests/detail-export" && request.method === "GET")
+          return handlePeriodicTestDetailExport(url, env);
+
         if (url.pathname === "/api/admin/submissions" && request.method === "DELETE")
           return handleDeleteSubmissions(request, env);
 
@@ -1062,6 +1069,103 @@ async function handleExport(url, env) {
     questions: safeParse(r.questions),
   }));
   return jsonResponse(rows);
+}
+
+// Với 1 NV nộp bài nhiều lần: giữ lại kết quả "tốt nhất" — ưu tiên ĐÃ ĐẠT (dù có lần trước
+// đó trượt), nếu cùng trạng thái đạt/trượt thì giữ lần nộp GẦN NHẤT. Khớp đúng logic đã dùng
+// ở Dashboard Tổng quan (1 lần đạt là tính đạt vĩnh viễn, không bị hạ xuống bởi lần sau).
+function pickBestSubmission(current, candidate) {
+  if (!current) return candidate;
+  if (candidate.passed && !current.passed) return candidate;
+  if (!candidate.passed && current.passed) return current;
+  return candidate.submitted_at > current.submitted_at ? candidate : current;
+}
+
+// Trích xuất chi tiết theo từng nhân viên cho 1 chương trình đào tạo: gồm CẢ người đã làm bài
+// lẫn người CHƯA làm (để biết rõ kho/nhân viên nào còn thiếu), theo đúng khoảng thời gian và
+// đối tượng bắt buộc (required_titles) của chương trình đó — khớp với số liệu ở Dashboard.
+async function handleProgramDetailExport(url, env) {
+  const programId = url.searchParams.get("programId") ?? "";
+  const from = url.searchParams.get("from");
+  const to = url.searchParams.get("to");
+
+  const employeesRes = await env.DB.prepare("SELECT * FROM employees").all();
+  const programRow = await env.DB.prepare("SELECT program_name, required_titles FROM program_config WHERE program_id = ?").bind(programId).first();
+  let requiredTitles = [];
+  try { requiredTitles = JSON.parse(programRow?.required_titles || "[]"); } catch (e) { /* để rỗng nếu lỗi */ }
+
+  let subQuery = "SELECT employee_id, passed, percentage, submitted_at FROM quiz_submissions WHERE program_id = ?";
+  const binds = [programId];
+  if (from) { subQuery += " AND submitted_at >= ?"; binds.push(from); }
+  if (to) { subQuery += " AND submitted_at <= ?"; binds.push(to); }
+  const subsRes = await env.DB.prepare(subQuery).bind(...binds).all();
+
+  const bestByEmployee = {};
+  subsRes.results.forEach((s) => { bestByEmployee[s.employee_id] = pickBestSubmission(bestByEmployee[s.employee_id], s); });
+
+  const eligible = requiredTitles.length ? employeesRes.results.filter((e) => requiredTitles.includes(e.title)) : employeesRes.results;
+  const rows = eligible.map((e) => {
+    const s = bestByEmployee[e.employee_id];
+    return {
+      name: e.name, employeeId: e.employee_id, warehouseCode: e.warehouse_code || "", title: e.title || "",
+      submitted: !!s, passed: s ? !!s.passed : null, percentage: s ? s.percentage : null, submittedAt: s ? s.submitted_at : null,
+    };
+  });
+  return jsonResponse({ programName: programRow?.program_name || programId, rows });
+}
+
+// Trích xuất chi tiết ai đã "Xác nhận đã đọc" 1 thông báo, ai chưa — theo đúng đối tượng bắt
+// buộc (required_titles) của thông báo đó.
+async function handleAnnouncementDetailExport(url, env) {
+  const announcementId = url.searchParams.get("announcementId");
+  const ann = await env.DB.prepare("SELECT * FROM announcements WHERE id = ?").bind(announcementId).first();
+  if (!ann) return jsonResponse({ error: "Không tìm thấy thông báo" }, 404);
+  let requiredTitles = [];
+  try { requiredTitles = JSON.parse(ann.required_titles || "[]"); } catch (e) { /* để rỗng nếu lỗi */ }
+
+  const employeesRes = await env.DB.prepare("SELECT * FROM employees").all();
+  const readsRes = await env.DB.prepare("SELECT employee_id, read_at FROM announcement_reads WHERE announcement_id = ?").bind(announcementId).all();
+  const readByEmployee = {};
+  readsRes.results.forEach((r) => { readByEmployee[r.employee_id] = r.read_at; });
+
+  const eligible = requiredTitles.length ? employeesRes.results.filter((e) => requiredTitles.includes(e.title)) : employeesRes.results;
+  const rows = eligible.map((e) => ({
+    name: e.name, employeeId: e.employee_id, warehouseCode: e.warehouse_code || "", title: e.title || "",
+    confirmed: !!readByEmployee[e.employee_id], confirmedAt: readByEmployee[e.employee_id] || null,
+  }));
+  return jsonResponse({ announcementTitle: ann.title, rows });
+}
+
+// Trích xuất chi tiết theo từng nhân viên cho 1 bài test định kỳ — lọc ĐÚNG theo
+// periodic_test_id (không lẫn với các lượt làm chương trình học thông thường của cùng
+// chương trình gốc), theo đúng đối tượng bắt buộc của bài test định kỳ đó.
+async function handlePeriodicTestDetailExport(url, env) {
+  const periodicTestId = url.searchParams.get("periodicTestId");
+  const from = url.searchParams.get("from");
+  const to = url.searchParams.get("to");
+  const pt = await env.DB.prepare("SELECT * FROM periodic_tests WHERE id = ?").bind(periodicTestId).first();
+  if (!pt) return jsonResponse({ error: "Không tìm thấy bài test định kỳ" }, 404);
+  let requiredTitles = [];
+  try { requiredTitles = JSON.parse(pt.required_titles || "[]"); } catch (e) { /* để rỗng nếu lỗi */ }
+
+  const employeesRes = await env.DB.prepare("SELECT * FROM employees").all();
+  let subQuery = "SELECT employee_id, passed, percentage, submitted_at FROM quiz_submissions WHERE periodic_test_id = ?";
+  const binds = [periodicTestId];
+  if (from) { subQuery += " AND submitted_at >= ?"; binds.push(from); }
+  if (to) { subQuery += " AND submitted_at <= ?"; binds.push(to); }
+  const subsRes = await env.DB.prepare(subQuery).bind(...binds).all();
+  const bestByEmployee = {};
+  subsRes.results.forEach((s) => { bestByEmployee[s.employee_id] = pickBestSubmission(bestByEmployee[s.employee_id], s); });
+
+  const eligible = requiredTitles.length ? employeesRes.results.filter((e) => requiredTitles.includes(e.title)) : employeesRes.results;
+  const rows = eligible.map((e) => {
+    const s = bestByEmployee[e.employee_id];
+    return {
+      name: e.name, employeeId: e.employee_id, warehouseCode: e.warehouse_code || "", title: e.title || "",
+      submitted: !!s, passed: s ? !!s.passed : null, percentage: s ? s.percentage : null, submittedAt: s ? s.submitted_at : null,
+    };
+  });
+  return jsonResponse({ periodicTestTitle: pt.title, rows });
 }
 
 // Xóa theo id cụ thể, HOẶC theo (chương trình [hoặc tất cả] + khoảng thời gian [hoặc toàn bộ]).

@@ -496,19 +496,19 @@ th.donts{background:#FFEBEE;color:#C62828;}
           </div>
 
           <div class="admin-section-title">🎓 Chương trình đào tạo</div>
-          <div class="admin-hint">Đủ điều kiện = số NV thuộc đối tượng bắt buộc. Đã làm bài = số NV đã nộp ít nhất 1 bài (dù đạt hay không). % Đạt/% Chưa đạt tính trên số NV ĐÃ LÀM BÀI. % Hoàn thành tính trên số NV ĐỦ ĐIỀU KIỆN (bao gồm cả người chưa làm).</div>
+          <div class="admin-hint">Đủ điều kiện = số NV thuộc đối tượng bắt buộc. Đã làm bài = số NV đã nộp ít nhất 1 bài (dù đạt hay không). % Đạt/% Chưa đạt tính trên số NV ĐÃ LÀM BÀI. % Hoàn thành tính trên số NV ĐỦ ĐIỀU KIỆN (bao gồm cả người chưa làm). Bấm 💾 để tải chi tiết từng nhân viên (kho, đã làm/chưa, đạt/trượt) ra Excel.</div>
           <table class="admin-table"><thead><tr>
-            <th>Chương trình</th><th>Trạng thái</th><th>Module</th><th>Câu hỏi</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã làm bài</th><th>Đạt</th><th>Chưa đạt</th><th>% Đạt</th><th>% Chưa đạt</th><th>% Hoàn thành</th>
+            <th>Chương trình</th><th>Trạng thái</th><th>Module</th><th>Câu hỏi</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã làm bài</th><th>Đạt</th><th>Chưa đạt</th><th>% Đạt</th><th>% Chưa đạt</th><th>% Hoàn thành</th><th></th>
           </tr></thead><tbody id="dashProgramsBody"></tbody></table>
 
           <div class="admin-section-title">📢 Nội dung thông báo</div>
-          <div class="admin-hint">Đủ điều kiện = số NV thuộc đối tượng thông báo đó áp dụng. Đã xác nhận = số NV đã bấm "Tôi đã đọc và nắm thông tin".</div>
-          <table class="admin-table"><thead><tr><th>Tiêu đề</th><th>Ngày đăng</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã xác nhận</th><th>% Đã xác nhận</th></tr></thead><tbody id="dashAnnouncementsBody"></tbody></table>
+          <div class="admin-hint">Đủ điều kiện = số NV thuộc đối tượng thông báo đó áp dụng. Đã xác nhận = số NV đã bấm "Tôi đã đọc và nắm thông tin". Bấm 💾 để tải chi tiết ai đã xác nhận, ai chưa.</div>
+          <table class="admin-table"><thead><tr><th>Tiêu đề</th><th>Ngày đăng</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã xác nhận</th><th>% Đã xác nhận</th><th></th></tr></thead><tbody id="dashAnnouncementsBody"></tbody></table>
 
           <div class="admin-section-title">📅 Bài test định kỳ</div>
-          <div class="admin-hint">Mỗi bài test định kỳ gắn với 1 chương trình — số liệu tính giống hệt bảng "Chương trình đào tạo" ở trên, chỉ lọc riêng cho chương trình đã liên kết.</div>
+          <div class="admin-hint">Mỗi bài test định kỳ có bộ câu hỏi và kết quả RIÊNG (không lẫn với chương trình gốc). Bấm 💾 để tải chi tiết từng nhân viên ra Excel.</div>
           <table class="admin-table"><thead><tr>
-            <th>Tiêu đề</th><th>Chương trình liên kết</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã làm bài</th><th>Đạt</th><th>Chưa đạt</th><th>% Đạt</th><th>% Hoàn thành</th>
+            <th>Tiêu đề</th><th>Chương trình liên kết</th><th>Đối tượng</th><th>Đủ điều kiện</th><th>Đã làm bài</th><th>Đạt</th><th>Chưa đạt</th><th>% Đạt</th><th>% Hoàn thành</th><th></th>
           </tr></thead><tbody id="dashPeriodicTestsBody"></tbody></table>
         </div>
 
@@ -2821,9 +2821,10 @@ function renderDashboardStats(data){
     const completionText = p.completionPct === null ? '—' : p.completionPct + '%';
     const passRateText = p.passRatePct === null ? '—' : p.passRatePct + '%';
     const failRateText = p.failRatePct === null ? '—' : p.failRatePct + '%';
-    tr.innerHTML = `<td>${escUser(p.programName)}</td><td>${statusText}</td><td>${p.moduleCount}</td><td>${p.questionCount}</td><td>${escUser(audienceText)}</td><td>${p.eligibleCount}</td><td>${p.submittedCount}</td><td>${p.passedCount}</td><td>${p.failedCount}</td><td>${passRateText}</td><td>${failRateText}</td><td>${completionText}</td>`;
+    tr.innerHTML = `<td>${escUser(p.programName)}</td><td>${statusText}</td><td>${p.moduleCount}</td><td>${p.questionCount}</td><td>${escUser(audienceText)}</td><td>${p.eligibleCount}</td><td>${p.submittedCount}</td><td>${p.passedCount}</td><td>${p.failedCount}</td><td>${passRateText}</td><td>${failRateText}</td><td>${completionText}</td><td><button type="button" class="btn-icon-only" data-export-program="${escUser(p.programId)}" title="Tải chi tiết Excel">💾</button></td>`;
     progBody.appendChild(tr);
   });
+  progBody.querySelectorAll('[data-export-program]').forEach(b => b.addEventListener('click', () => exportProgramDetail(b.dataset.exportProgram)));
 
   const annBody = document.getElementById('dashAnnouncementsBody');
   if(annBody){
@@ -2832,9 +2833,10 @@ function renderDashboardStats(data){
       const tr = document.createElement('tr');
       const audienceText = a.requiredTitles.length ? a.requiredTitles.join(', ') : 'Tất cả NV';
       const pct = a.eligibleCount ? Math.round((a.confirmedCount / a.eligibleCount) * 100) : null;
-      tr.innerHTML = `<td>${escUser(a.title)}</td><td style="white-space:nowrap;">${toVNTimeString(a.createdAt)}</td><td>${escUser(audienceText)}</td><td>${a.eligibleCount}</td><td>${a.confirmedCount}</td><td>${pct === null ? '—' : pct + '%'}</td>`;
+      tr.innerHTML = `<td>${escUser(a.title)}</td><td style="white-space:nowrap;">${toVNTimeString(a.createdAt)}</td><td>${escUser(audienceText)}</td><td>${a.eligibleCount}</td><td>${a.confirmedCount}</td><td>${pct === null ? '—' : pct + '%'}</td><td><button type="button" class="btn-icon-only" data-export-ann="${a.id}" title="Tải chi tiết Excel">💾</button></td>`;
       annBody.appendChild(tr);
     });
+    annBody.querySelectorAll('[data-export-ann]').forEach(b => b.addEventListener('click', () => exportAnnouncementDetail(parseInt(b.dataset.exportAnn,10))));
   }
 
   const ptBody = document.getElementById('dashPeriodicTestsBody');
@@ -2846,9 +2848,85 @@ function renderDashboardStats(data){
       const linkedLabel = (t.linkedProgramId === null || t.linkedProgramId === undefined) ? '(chưa liên kết)' : programName(t.linkedProgramId);
       const passRateText = t.passRatePct === null ? '—' : t.passRatePct + '%';
       const completionText = t.completionPct === null ? '—' : t.completionPct + '%';
-      tr.innerHTML = `<td>${escUser(t.title)}</td><td>${escUser(linkedLabel)}</td><td>${escUser(audienceText)}</td><td>${t.eligibleCount}</td><td>${t.submittedCount}</td><td>${t.passedCount}</td><td>${t.failedCount}</td><td>${passRateText}</td><td>${completionText}</td>`;
+      tr.innerHTML = `<td>${escUser(t.title)}</td><td>${escUser(linkedLabel)}</td><td>${escUser(audienceText)}</td><td>${t.eligibleCount}</td><td>${t.submittedCount}</td><td>${t.passedCount}</td><td>${t.failedCount}</td><td>${passRateText}</td><td>${completionText}</td><td><button type="button" class="btn-icon-only" data-export-pt="${t.id}" title="Tải chi tiết Excel">💾</button></td>`;
       ptBody.appendChild(tr);
     });
+    ptBody.querySelectorAll('[data-export-pt]').forEach(b => b.addEventListener('click', () => exportPeriodicTestDetail(parseInt(b.dataset.exportPt,10))));
+  }
+}
+// Trích xuất chi tiết TỪNG NHÂN VIÊN (kho, chức danh, đã làm/chưa, đạt/trượt) ra Excel — dùng
+// đúng khoảng From/To đang chọn trên Dashboard để số liệu khớp với bảng đang xem.
+function currentDashDateParams(){
+  const from = dateInputToISO(document.getElementById('dashFrom').value, false);
+  const to = dateInputToISO(document.getElementById('dashTo').value, true);
+  const params = new URLSearchParams();
+  if(from) params.set('from', from);
+  if(to) params.set('to', to);
+  return params;
+}
+function statusLabel(row){
+  if(!row.submitted) return 'Chưa làm bài';
+  return row.passed ? 'Đạt' : 'Chưa đạt';
+}
+async function exportProgramDetail(programId){
+  const token = adminToken();
+  try{
+    const params = currentDashDateParams();
+    params.set('programId', programId);
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/programs/detail-export?${params.toString()}`, { headers: {'Authorization': 'Bearer ' + token} });
+    const data = await res.json();
+    if(!res.ok){ alert(data.error || 'Không tải được dữ liệu.'); return; }
+    const rows = data.rows.map(r => ({
+      'Tên NV': r.name, 'Mã NV': r.employeeId, 'Kho': r.warehouseCode, 'Chức danh': r.title,
+      'Trạng thái': statusLabel(r), 'Điểm (%)': r.percentage ?? '', 'Thời gian nộp (giờ VN)': r.submittedAt ? toVNTimeString(r.submittedAt) : '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'ChiTiet');
+    XLSX.writeFile(wb, `ChiTiet_${(data.programName||'ChuongTrinh').replace(/[^\w]+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }catch(err){
+    console.error('Lỗi trích xuất chi tiết chương trình:', err);
+    alert('Không kết nối được máy chủ.');
+  }
+}
+async function exportAnnouncementDetail(announcementId){
+  const token = adminToken();
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/announcements/detail-export?announcementId=${announcementId}`, { headers: {'Authorization': 'Bearer ' + token} });
+    const data = await res.json();
+    if(!res.ok){ alert(data.error || 'Không tải được dữ liệu.'); return; }
+    const rows = data.rows.map(r => ({
+      'Tên NV': r.name, 'Mã NV': r.employeeId, 'Kho': r.warehouseCode, 'Chức danh': r.title,
+      'Trạng thái': r.confirmed ? 'Đã xác nhận' : 'Chưa xác nhận', 'Thời gian xác nhận (giờ VN)': r.confirmedAt ? toVNTimeString(r.confirmedAt) : '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'ChiTiet');
+    XLSX.writeFile(wb, `ChiTiet_ThongBao_${(data.announcementTitle||'').replace(/[^\w]+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }catch(err){
+    console.error('Lỗi trích xuất chi tiết thông báo:', err);
+    alert('Không kết nối được máy chủ.');
+  }
+}
+async function exportPeriodicTestDetail(periodicTestId){
+  const token = adminToken();
+  try{
+    const params = currentDashDateParams();
+    params.set('periodicTestId', periodicTestId);
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests/detail-export?${params.toString()}`, { headers: {'Authorization': 'Bearer ' + token} });
+    const data = await res.json();
+    if(!res.ok){ alert(data.error || 'Không tải được dữ liệu.'); return; }
+    const rows = data.rows.map(r => ({
+      'Tên NV': r.name, 'Mã NV': r.employeeId, 'Kho': r.warehouseCode, 'Chức danh': r.title,
+      'Trạng thái': statusLabel(r), 'Điểm (%)': r.percentage ?? '', 'Thời gian nộp (giờ VN)': r.submittedAt ? toVNTimeString(r.submittedAt) : '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'ChiTiet');
+    XLSX.writeFile(wb, `ChiTiet_BaiTestDinhKy_${(data.periodicTestTitle||'').replace(/[^\w]+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }catch(err){
+    console.error('Lỗi trích xuất chi tiết bài test định kỳ:', err);
+    alert('Không kết nối được máy chủ.');
   }
 }
 // Tải danh sách chương trình thật từ D1 (bảng program_config) — thay cho danh sách cứng
