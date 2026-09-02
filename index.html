@@ -205,6 +205,14 @@ th.donts{background:#FFEBEE;color:#C62828;}
 .icon-btn-edit{background:var(--sf-black);color:#fff;}
 .icon-btn-del{background:var(--fail-red);color:#fff;}
 .mod-lang-panel, .fc-lang-panel{margin-bottom:8px;}
+.rte-toolbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;background:var(--sf-grey);border:1px solid var(--sf-border);border-bottom:none;border-radius:6px 6px 0 0;padding:6px 8px;}
+.rte-btn{background:#fff;border:1px solid var(--sf-border);border-radius:4px;padding:5px 10px;font-size:13px;cursor:pointer;min-width:30px;}
+.rte-btn:hover{background:#eee;}
+.rte-color{width:30px;height:30px;padding:1px;border:1px solid var(--sf-border);border-radius:4px;cursor:pointer;}
+.rte-fontsize{padding:5px;border:1px solid var(--sf-border);border-radius:4px;font-size:12px;}
+.rte-editor{min-height:160px;max-height:400px;overflow-y:auto;border:1px solid var(--sf-border);border-top:none;border-radius:0 0 6px 6px;padding:10px 12px;font-size:13px;line-height:1.6;background:#fff;}
+.rte-editor:empty::before{content:attr(data-placeholder);color:#999;}
+.rte-editor ul{padding-left:20px;margin:6px 0;}
 .menu-accordion-header{cursor:pointer;justify-content:flex-start;}
 .menu-accordion-header .accordion-chevron{margin-left:auto;font-size:11px;transition:transform .2s;}
 .menu-accordion-header.open .accordion-chevron{transform:rotate(180deg);}
@@ -626,23 +634,65 @@ th.donts{background:#FFEBEE;color:#C62828;}
             </div>
             <div class="mod-lang-panel" data-modlangpanel="vi">
               <div class="admin-row"><input type="text" id="modTitleVi" placeholder="Tên module (Tiếng Việt) *"></div>
-              <div class="admin-row"><textarea id="modContentVi" placeholder="Nội dung (Tiếng Việt) — hỗ trợ HTML cơ bản: <strong>, <i>, <br>, <ul><li>...v.v." style="min-height:160px;"></textarea></div>
+              <div class="rte-toolbar" data-rte-for="modContentVi">
+                <button type="button" class="rte-btn" data-cmd="bold" title="In đậm"><b>B</b></button>
+                <button type="button" class="rte-btn" data-cmd="italic" title="In nghiêng"><i>I</i></button>
+                <button type="button" class="rte-btn" data-cmd="underline" title="Gạch chân"><u>U</u></button>
+                <input type="color" class="rte-color" title="Màu chữ" value="#231F20">
+                <select class="rte-fontsize" title="Cỡ chữ">
+                  <option value="2">Nhỏ</option>
+                  <option value="3" selected>Vừa</option>
+                  <option value="5">Lớn</option>
+                  <option value="7">Rất lớn</option>
+                </select>
+                <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Danh sách gạch đầu dòng">• List</button>
+                <button type="button" class="rte-btn" data-cmd="removeFormat" title="Xóa định dạng">Xóa ĐD</button>
+              </div>
+              <div class="rte-editor" id="modContentVi" contenteditable="true" data-placeholder="Nội dung (Tiếng Việt)..."></div>
             </div>
             <div class="mod-lang-panel" data-modlangpanel="en" style="display:none;">
               <div class="admin-row"><input type="text" id="modTitleEn" placeholder="Module title (English)"></div>
-              <div class="admin-row"><textarea id="modContentEn" placeholder="Content (English)" style="min-height:160px;"></textarea></div>
+              <div class="rte-toolbar" data-rte-for="modContentEn">
+                <button type="button" class="rte-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+                <button type="button" class="rte-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+                <button type="button" class="rte-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+                <input type="color" class="rte-color" title="Text color" value="#231F20">
+                <select class="rte-fontsize" title="Font size">
+                  <option value="2">Small</option>
+                  <option value="3" selected>Normal</option>
+                  <option value="5">Large</option>
+                  <option value="7">X-Large</option>
+                </select>
+                <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Bullet list">• List</button>
+                <button type="button" class="rte-btn" data-cmd="removeFormat" title="Clear formatting">Clear</button>
+              </div>
+              <div class="rte-editor" id="modContentEn" contenteditable="true" data-placeholder="Content (English)..."></div>
             </div>
             <div class="mod-lang-panel" data-modlangpanel="zh" style="display:none;">
               <div class="admin-row"><input type="text" id="modTitleZh" placeholder="模块标题（中文）"></div>
-              <div class="admin-row"><textarea id="modContentZh" placeholder="内容（中文）" style="min-height:160px;"></textarea></div>
+              <div class="rte-toolbar" data-rte-for="modContentZh">
+                <button type="button" class="rte-btn" data-cmd="bold" title="粗体"><b>B</b></button>
+                <button type="button" class="rte-btn" data-cmd="italic" title="斜体"><i>I</i></button>
+                <button type="button" class="rte-btn" data-cmd="underline" title="下划线"><u>U</u></button>
+                <input type="color" class="rte-color" title="文字颜色" value="#231F20">
+                <select class="rte-fontsize" title="字号">
+                  <option value="2">小</option>
+                  <option value="3" selected>中</option>
+                  <option value="5">大</option>
+                  <option value="7">特大</option>
+                </select>
+                <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="项目符号列表">• List</button>
+                <button type="button" class="rte-btn" data-cmd="removeFormat" title="清除格式">清除</button>
+              </div>
+              <div class="rte-editor" id="modContentZh" contenteditable="true" data-placeholder="内容（中文）..."></div>
             </div>
-            <div class="admin-hint">Ví dụ nội dung: &lt;h3&gt;1. Mục tiêu&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Ý thứ nhất&lt;/li&gt;&lt;/ul&gt;. Chỉ bắt buộc điền Tiếng Việt — bỏ trống Anh/Trung thì trang tự hiện tạm bản Tiếng Việt khi đổi ngôn ngữ.</div>
+            <div class="admin-hint">Dùng thanh công cụ để in đậm/nghiêng/đổi màu chữ trực tiếp — không cần gõ tay HTML. Chỉ bắt buộc điền Tiếng Việt — bỏ trống Anh/Trung thì trang tự hiện tạm bản Tiếng Việt khi đổi ngôn ngữ.</div>
             <div class="admin-row">
               <button type="button" class="btn-secondary" id="btnSaveModule">Lưu module</button>
               <button type="button" class="btn-secondary" id="btnCancelModuleEdit" style="background:#888;">Đóng</button>
             </div>
 
-            <div class="admin-section-title">🔁 Flashcard ôn tập của module này</div>
+            <div class="admin-section-title">🔁 Flashcard ôn tập <span id="flashcardSectionLabel" style="font-weight:400;color:var(--sf-dark-grey);"></span></div>
             <table class="admin-table"><thead><tr><th>Câu hỏi (VI)</th><th>Đáp án (VI)</th><th></th></tr></thead><tbody id="flashcardTableBody"></tbody></table>
             <div class="admin-tabs" id="fcLangTabs">
               <button type="button" class="pill-tab-btn active" data-fclang="vi">🇻🇳 Tiếng Việt</button>
@@ -713,18 +763,24 @@ th.donts{background:#FFEBEE;color:#C62828;}
         <div class="admin-panel" id="adminPanelAnnouncements">
           <div class="admin-status-msg" id="annMsg"></div>
           <div class="admin-section-title">📢 Nội dung thông báo</div>
-          <div class="admin-hint">Hiện dạng danh sách xổ ngay trong hamburger menu ở trang chủ, mục mới nhất luôn nằm trên cùng. Nhân viên bấm vào 1 thông báo sẽ mở trang chi tiết và cần bấm "Xác nhận đã đọc" để công ty theo dõi được ai đã nắm thông tin.</div>
+          <div class="admin-hint">Hiện dạng danh sách xổ ngay trong hamburger menu ở trang chủ, mục mới nhất luôn nằm trên cùng. Nhân viên bấm vào 1 thông báo sẽ mở trang chi tiết và cần bấm "Xác nhận đã đọc" để công ty theo dõi được ai đã nắm thông tin. Không giới hạn độ dài nội dung.</div>
           <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th>Nội dung</th><th></th></tr></thead><tbody id="announcementTableBody"></tbody></table>
           <div class="admin-row"><input type="text" id="newAnnTitle" placeholder="Tiêu đề thông báo"></div>
-          <div class="admin-row"><textarea id="newAnnContent" placeholder="Nội dung chi tiết" style="min-height:70px;"></textarea></div>
-          <div class="admin-row"><button type="button" class="admin-btn-add" id="btnAddAnnouncement" title="Thêm thông báo">+</button></div>
+          <div class="admin-row"><textarea id="newAnnContent" placeholder="Nội dung chi tiết (không giới hạn độ dài)" style="min-height:120px;"></textarea></div>
+          <div class="admin-row">
+            <button type="button" class="admin-btn-add" id="btnAddAnnouncement" title="Thêm/Cập nhật thông báo">+</button>
+            <button type="button" class="btn-secondary" id="btnCancelAnnEdit" style="display:none;background:#888;">Hủy sửa</button>
+          </div>
 
           <div class="admin-section-title">📅 Bài test định kỳ</div>
-          <div class="admin-hint">Chọn 1 chương trình đào tạo đã có sẵn (nội dung câu hỏi/cấu hình lấy từ tab "Ngân hàng câu hỏi" và "Cấu hình bài thi" của chính chương trình đó) — nhân viên bấm vào mục này trên menu sẽ được đưa thẳng vào làm bài thi của chương trình đã chọn.</div>
-          <table class="admin-table"><thead><tr><th>Ngày</th><th>Chương trình</th><th>Ghi chú</th><th></th></tr></thead><tbody id="periodicTestTableBody"></tbody></table>
-          <div class="admin-row"><select id="newPtProgram" style="flex:1;"></select></div>
-          <div class="admin-row"><textarea id="newPtContent" placeholder="Ghi chú/hướng dẫn thêm (tùy chọn)" style="min-height:70px;"></textarea></div>
-          <div class="admin-row"><button type="button" class="admin-btn-add" id="btnAddPeriodicTest" title="Thêm bài test định kỳ">+</button></div>
+          <div class="admin-hint">Nhập tiêu đề + nội dung/lưu ý cho bài test, sau đó bấm "📝 Thiết lập câu hỏi" để chuyển sang Ngân hàng câu hỏi — mỗi bài test định kỳ có bộ câu hỏi RIÊNG, không dùng chung với các chương trình đào tạo khác.</div>
+          <table class="admin-table"><thead><tr><th>Ngày</th><th>Tiêu đề</th><th>Nội dung</th><th></th></tr></thead><tbody id="periodicTestTableBody"></tbody></table>
+          <div class="admin-row"><input type="text" id="newPtTitle" placeholder="Tiêu đề bài test định kỳ"></div>
+          <div class="admin-row"><textarea id="newPtContent" placeholder="Nội dung thông báo và những điểm lưu ý (không giới hạn độ dài)" style="min-height:120px;"></textarea></div>
+          <div class="admin-row">
+            <button type="button" class="admin-btn-add" id="btnAddPeriodicTest" title="Thêm/Cập nhật bài test định kỳ">+</button>
+            <button type="button" class="btn-secondary" id="btnCancelPtEdit" style="display:none;background:#888;">Hủy sửa</button>
+          </div>
         </div>
 
         <!-- TAB: Đổi mật khẩu -->
@@ -757,6 +813,12 @@ th.donts{background:#FFEBEE;color:#C62828;}
     <h2 style="margin:0 0 10px 0;background:none;color:var(--sf-red);padding:0;text-transform:none;" id="t-quiz-banner-title"></h2>
     <p style="margin-bottom:18px;font-size:14px;" id="t-quiz-sub"></p>
     <button class="btn-start" id="t-btn-start"></button>
+  </div>
+  <!-- Chặn làm lại bài test định kỳ đã hoàn thành (mỗi bài test định kỳ chỉ 1 lần/NV) -->
+  <div id="periodicTestBlockedBanner" class="quiz-start-banner" style="display:none;border-color:var(--fail-red);">
+    <div style="font-size:40px;margin-bottom:10px;">🔒</div>
+    <h2 style="margin:0 0 10px 0;background:none;color:var(--fail-red);padding:0;text-transform:none;">Bạn đã hoàn thành bài test định kỳ này</h2>
+    <p id="periodicTestBlockedMsg" style="margin-bottom:0;font-size:14px;"></p>
   </div>
   <!-- BÀI KIỂM TRA -->
   <div id="quiz-section">
@@ -857,6 +919,10 @@ const WORKER_BASE_URL = "https://sfexpress-quiz-worker.nam-nk.workers.dev";
 // này, chỉ khác ở tham số ?program=... trên URL — khi bấm vào 1 chương trình khác trong
 // hamburger menu, trang tự tải lại với đúng tham số này và lấy nội dung tương ứng từ D1.
 const PROGRAM_ID = new URLSearchParams(location.search).get('program') ?? "";
+// Nếu có tham số ?pt=<id> trên URL, nghĩa là NV đang vào làm bài qua đường link "Bài test
+// định kỳ" (không phải chương trình học thông thường) — bắt buộc giới hạn 1 lần duy nhất,
+// và không hiện đáp án đúng ở phần xem lại (tránh lộ đề cho người chưa làm).
+const PERIODIC_TEST_ID = new URLSearchParams(location.search).get('pt');
 
 const BACKEND_CONFIGURED = !WORKER_BASE_URL.includes("YOUR-SUBDOMAIN");
 </script>
@@ -864,7 +930,7 @@ const BACKEND_CONFIGURED = !WORKER_BASE_URL.includes("YOUR-SUBDOMAIN");
 <script>
 const UI = {
 vi:{
-  mainTitle:"SỔ TAY ĐÀO TẠO KỸ NĂNG MỀM CHUYÊN NGHIỆP DÀNH CHO TÀI XẾ & NHÂN VIÊN GIAO NHẬN",
+  mainTitle:"SỔ TAY ĐÀO TẠO NGHIỆP VỤ DÀNH CHO NHÂN VIÊN SERVICE STATION",
   subTitle:"Thương hiệu: SF Express | SF Quốc Tế – Dịch Vụ Vận Chuyển Logistics Toàn Cầu",
   statsTitle:"📊 Thống kê kết quả",
   statsFromLabel:"Từ ngày:",
@@ -945,7 +1011,7 @@ vi:{
   studentLine:"Học viên"
 },
 en:{
-  mainTitle:"PROFESSIONAL SOFT SKILLS TRAINING HANDBOOK FOR DRIVERS & COURIERS",
+  mainTitle:"PROFESSIONAL OPERATIONS TRAINING HANDBOOK FOR SERVICE STATION STAFF",
   subTitle:"Brand: SF Express | SF International – Global Logistics Transport Service",
   statsTitle:"📊 Results Statistics",
   statsFromLabel:"From:",
@@ -1026,7 +1092,7 @@ en:{
   studentLine:"Trainee"
 },
 zh:{
-  mainTitle:"顺丰速运司机与收派员专业软技能培训手册",
+  mainTitle:"Service Station员工业务培训手册",
   subTitle:"品牌：顺丰速运 | 顺丰国际 – 全球物流运输服务",
   statsTitle:"📊 结果统计",
   statsFromLabel:"从：",
@@ -1729,7 +1795,10 @@ function submitQuiz(){
     div.className = 'review-item ' + (isCorrect ? 'correct' : 'wrong');
     const chosenText = (chosen !== undefined) ? `${labels[chosen]}. ${qObj[currentLang].a[chosen]}` : t.notAnswered;
     const correctText = `${labels[qObj.correct]}. ${qObj[currentLang].a[qObj.correct]}`;
-    div.innerHTML = `<strong>${t.questionWord} ${index+1}:</strong> ${qObj[currentLang].q}<br>${t.yourAnswer}: ${chosenText}${isCorrect ? '' : `<br>${t.correctAnswer}: ${correctText}`}`;
+    // Bài test định kỳ: KHÔNG hiện đáp án đúng cho câu sai — tránh trường hợp NV chụp màn
+    // hình/kể lại đáp án cho đồng nghiệp chưa làm, làm mất ý nghĩa kiểm tra định kỳ nghiêm túc.
+    const showCorrectAnswer = !isCorrect && !PERIODIC_TEST_ID;
+    div.innerHTML = `<strong>${t.questionWord} ${index+1}:</strong> ${qObj[currentLang].q}<br>${t.yourAnswer}: ${chosenText}${showCorrectAnswer ? `<br>${t.correctAnswer}: ${correctText}` : ''}`;
     reviewList.appendChild(div);
   });
   const percentage = Math.round((score/total)*100);
@@ -1858,9 +1927,12 @@ function submitResultToBackend(){
   fetch(`${WORKER_BASE_URL}/api/submit`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ programId: PROGRAM_ID, payload, publicStats })
-  }).then(res => {
-    if(!res.ok) throw new Error('HTTP ' + res.status);
+    body: JSON.stringify({ programId: PROGRAM_ID, payload, publicStats, periodicTestId: PERIODIC_TEST_ID ? parseInt(PERIODIC_TEST_ID, 10) : null })
+  }).then(async res => {
+    if(!res.ok){
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || ('HTTP ' + res.status));
+    }
     return res.json();
   }).then(() => {
     statusEl.style.color = 'var(--pass-green)';
@@ -1871,7 +1943,9 @@ function submitResultToBackend(){
   }).catch((err) => {
     console.error('Lỗi khi nộp bài lên Cloudflare Worker:', err);
     statusEl.style.color = 'var(--fail-red)';
-    statusEl.textContent = t.submitErrorMsg;
+    // Server chặn nộp lại (409) nếu đã làm bài test định kỳ này rồi — hiện đúng thông báo đó
+    // thay vì thông báo lỗi mạng chung chung, để NV hiểu rõ vì sao không nộp được.
+    statusEl.textContent = err.message && err.message.includes('đã hoàn thành') ? err.message : t.submitErrorMsg;
     btn.disabled = false;
   });
 }
@@ -2130,6 +2204,25 @@ function applyGateEmployee(){
   const card = document.getElementById('studentInfoCard');
   if(card) card.style.display = 'none';
   updateExtractButtonVisibility();
+  if(PERIODIC_TEST_ID) checkPeriodicTestAttempt();
+}
+// Bài test định kỳ (có ?pt=<id> trên URL) chỉ cho phép NV làm 1 LẦN DUY NHẤT — kiểm tra ngay
+// sau khi xác thực NV, nếu đã làm rồi thì ẩn hẳn banner "Bắt đầu làm bài", hiện thông báo chặn
+// kèm ngày đã làm + kết quả trước đó, không cho làm lại (cũng được chặn cả ở server để chắc chắn).
+async function checkPeriodicTestAttempt(){
+  if(!GATE_EMPLOYEE || !GATE_EMPLOYEE.employeeId) return;
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/periodic-tests/check-attempt?periodicTestId=${encodeURIComponent(PERIODIC_TEST_ID)}&employeeId=${encodeURIComponent(GATE_EMPLOYEE.employeeId)}`);
+    const data = await res.json();
+    if(data.attempted){
+      document.getElementById('start-banner').style.display = 'none';
+      const blockedBanner = document.getElementById('periodicTestBlockedBanner');
+      const resultText = data.passed ? `Đạt (${data.percentage ?? '—'}%)` : `Chưa đạt (${data.percentage ?? '—'}%)`;
+      document.getElementById('periodicTestBlockedMsg').textContent =
+        `Bạn đã làm bài test định kỳ này vào ${toVNTimeString(data.submittedAt)} — Kết quả: ${resultText}. Mỗi bài test định kỳ chỉ được làm 1 lần duy nhất.`;
+      blockedBanner.style.display = 'block';
+    }
+  }catch(err){ console.error('Lỗi kiểm tra lượt làm bài test định kỳ:', err); }
 }
 async function submitGate(){
   const name = document.getElementById('gateName').value.trim();
@@ -2297,6 +2390,7 @@ async function loadPeriodicTestsMenu(){
       const url = new URL(location.href);
       if(r.linked_program_id === '') url.searchParams.delete('program');
       else url.searchParams.set('program', r.linked_program_id);
+      url.searchParams.set('pt', r.id);
       location.href = url.toString();
     });
   }catch(err){ console.error('Lỗi tải bài test định kỳ:', err); }
@@ -2642,7 +2736,6 @@ async function loadAdminDashboardData(){
   renderContentProgramTabs();
   renderDataProgramTabs();
   populateConfigProgramSelect();
-  populatePeriodicTestProgramSelect();
   setCurrentAdminProgram(PROGRAMS.some(p => p.id === currentAdminProgramId) ? currentAdminProgramId : ''); // đồng bộ nhãn + nạp dữ liệu cho chương trình đang chọn
   loadEmployees();
   loadStorageInfo();
@@ -2795,8 +2888,7 @@ async function addProgram(){
     renderContentProgramTabs();
   renderDataProgramTabs();
     populateConfigProgramSelect();
-    populatePeriodicTestProgramSelect();
-    setCurrentAdminProgram(programId);
+      setCurrentAdminProgram(programId);
   }catch(err){
     console.error('Lỗi thêm chương trình:', err);
     alert('Không kết nối được máy chủ.');
@@ -2822,8 +2914,7 @@ async function removeProgram(id, name){
     renderContentProgramTabs();
   renderDataProgramTabs();
     populateConfigProgramSelect();
-    populatePeriodicTestProgramSelect();
-    // Nếu vừa xóa đúng chương trình đang chọn, quay về Kỹ Năng Mềm gốc.
+      // Nếu vừa xóa đúng chương trình đang chọn, quay về Kỹ Năng Mềm gốc.
     setCurrentAdminProgram(currentAdminProgramId === id ? '' : currentAdminProgramId);
   }catch(err){
     console.error('Lỗi xóa chương trình:', err);
@@ -2903,6 +2994,12 @@ function populateConfigProgramSelect(){
    ================================================================ */
 let modulesCache = [];
 let editingModuleId = null;
+// Module đang "nhận" flashcard — KHÁC với editingModuleId (chỉ set khi bấm nút Sửa 1 module
+// có sẵn). Tách riêng 2 biến này để sửa lỗi nghiêm trọng: trước đây sau khi TẠO MỚI module 1
+// thành công, code gán luôn editingModuleId = id của module 1 (để tiện thêm flashcard ngay).
+// Nếu Admin gõ tiếp nội dung cho "module 2" mà KHÔNG bấm Đóng/+ trước, hệ thống hiểu nhầm là
+// đang SỬA module 1 → bấm Lưu sẽ GHI ĐÈ module 1 bằng nội dung module 2 (module 1 "biến mất").
+let flashcardTargetModuleId = null;
 let flashcardsCache = [];
 
 async function loadModulesAdmin(){
@@ -2943,10 +3040,13 @@ function renderModuleTable(){
 }
 function clearModuleForm(){
   editingModuleId = null;
+  flashcardTargetModuleId = null;
   document.getElementById('moduleEditForm').style.display = 'none';
-  ['modTitleVi','modTitleEn','modTitleZh','modContentVi','modContentEn','modContentZh',
+  document.getElementById('flashcardSectionLabel').textContent = '';
+  ['modTitleVi','modTitleEn','modTitleZh',
    'newFcQuestionVi','newFcQuestionEn','newFcQuestionZh','newFcAnswerVi','newFcAnswerEn','newFcAnswerZh']
     .forEach(id => { document.getElementById(id).value = ''; });
+  ['modContentVi','modContentEn','modContentZh'].forEach(id => { document.getElementById(id).innerHTML = ''; });
   document.getElementById('modOrder').value = '';
   document.getElementById('modColor').value = '#E11B22';
   flashcardsCache = [];
@@ -2966,20 +3066,24 @@ function showModuleFormEmpty(){
   clearModuleForm();
   document.getElementById('moduleEditForm').style.display = 'block';
   document.getElementById('modOrder').value = modulesCache.length + 1;
+  document.getElementById('modTitleVi').scrollIntoView({behavior:'smooth', block:'center'});
+  document.getElementById('modTitleVi').focus();
 }
 async function editModule(id){
   const m = modulesCache.find(x => x.id === id);
   if(!m) return;
   editingModuleId = id;
+  flashcardTargetModuleId = id;
   document.getElementById('moduleEditForm').style.display = 'block';
   document.getElementById('modOrder').value = m.module_order;
   document.getElementById('modColor').value = m.color || '#E11B22';
   document.getElementById('modTitleVi').value = m.title || '';
   document.getElementById('modTitleEn').value = m.title_en || '';
   document.getElementById('modTitleZh').value = m.title_zh || '';
-  document.getElementById('modContentVi').value = m.content_html || '';
-  document.getElementById('modContentEn').value = m.content_html_en || '';
-  document.getElementById('modContentZh').value = m.content_html_zh || '';
+  document.getElementById('modContentVi').innerHTML = m.content_html || '';
+  document.getElementById('modContentEn').innerHTML = m.content_html_en || '';
+  document.getElementById('modContentZh').innerHTML = m.content_html_zh || '';
+  document.getElementById('flashcardSectionLabel').textContent = `(của module: "${m.title}")`;
   switchModuleFormLang('vi');
   document.getElementById('moduleEditForm').scrollIntoView({behavior:'smooth', block:'start'});
   flashHighlight(document.getElementById('moduleEditForm'));
@@ -2993,12 +3097,13 @@ async function saveModule(){
   const titleZh = document.getElementById('modTitleZh').value.trim();
   const order = parseInt(document.getElementById('modOrder').value, 10) || 1;
   const color = document.getElementById('modColor').value || '#E11B22';
-  const contentHtmlVi = document.getElementById('modContentVi').value;
-  const contentHtmlEn = document.getElementById('modContentEn').value;
-  const contentHtmlZh = document.getElementById('modContentZh').value;
-  if(!titleVi){ msgEl.textContent = 'Vui lòng nhập tên module (Tiếng Việt).'; msgEl.style.color = 'var(--fail-red)'; return; }
+  const contentHtmlVi = document.getElementById('modContentVi').innerHTML;
+  const contentHtmlEn = document.getElementById('modContentEn').innerHTML;
+  const contentHtmlZh = document.getElementById('modContentZh').innerHTML;
+  if(!titleVi){ msgEl.textContent = 'Vui lòng nhập tên module (Tiếng Việt).'; msgEl.style.color = 'var(--fail-red)'; flashHighlight(msgEl); return; }
   const token = adminToken();
   const body = { titleVi, titleEn, titleZh, color, contentHtmlVi, contentHtmlEn, contentHtmlZh, moduleOrder: order };
+  const wasEditing = !!editingModuleId; // ghi nhớ TRƯỚC khi có thể bị đổi bên dưới
   try{
     let res, data;
     if(editingModuleId){
@@ -3013,16 +3118,32 @@ async function saveModule(){
       });
     }
     data = await res.json();
-    if(!res.ok){ msgEl.textContent = data.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
-    if(!editingModuleId && data.id) editingModuleId = data.id; // để có thể thêm flashcard ngay sau khi tạo
-    msgEl.textContent = 'Đã lưu module.';
-    msgEl.style.color = 'var(--pass-green)';
+    if(!res.ok){ msgEl.textContent = data.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; flashHighlight(msgEl); return; }
     await loadModulesAdmin();
-    if(editingModuleId) await loadFlashcardsAdmin(editingModuleId);
+    if(wasEditing){
+      // Đang SỬA module có sẵn — giữ nguyên form để admin xem lại, KHÔNG xóa nội dung.
+      msgEl.textContent = `✅ Đã cập nhật module "${titleVi}".`;
+    } else {
+      // VỪA TẠO MỚI — xóa sạch ô Tên/Nội dung để sẵn sàng nhập module TIẾP THEO, tránh bấm
+      // Lưu lần nữa sẽ ghi đè nhầm module vừa tạo (đây chính là lỗi đã xảy ra trước đây).
+      flashcardTargetModuleId = data.id;
+      document.getElementById('flashcardSectionLabel').textContent = `(của module vừa tạo: "${titleVi}")`;
+      ['modTitleVi','modTitleEn','modTitleZh'].forEach(id => { document.getElementById(id).value = ''; });
+      ['modContentVi','modContentEn','modContentZh'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+      document.getElementById('modOrder').value = modulesCache.length + 1;
+      switchModuleFormLang('vi');
+      await loadFlashcardsAdmin(data.id);
+      msgEl.textContent = `✅ Đã lưu module "${titleVi}". Có thể thêm flashcard bên dưới, hoặc nhập tiếp để tạo module mới.`;
+    }
+    msgEl.style.color = 'var(--pass-green)';
+    msgEl.scrollIntoView({behavior:'smooth', block:'center'});
+    flashHighlight(msgEl);
+    flashHighlight(document.getElementById('btnSaveModule'));
   }catch(err){
     console.error('Lỗi lưu module:', err);
     msgEl.textContent = 'Không kết nối được máy chủ.';
     msgEl.style.color = 'var(--fail-red)';
+    flashHighlight(msgEl);
   }
 }
 async function deleteModule(id){
@@ -3037,7 +3158,7 @@ async function deleteModule(id){
       msgEl.textContent = errText; msgEl.style.color = 'var(--fail-red)';
       return;
     }
-    if(editingModuleId === id) clearModuleForm();
+    if(editingModuleId === id || flashcardTargetModuleId === id) clearModuleForm();
     msgEl.textContent = 'Đã xóa module.';
     msgEl.style.color = 'var(--pass-green)';
     loadModulesAdmin();
@@ -3068,7 +3189,7 @@ function renderFlashcardTable(){
   tbody.querySelectorAll('[data-fc-del]').forEach(b => b.addEventListener('click', () => deleteFlashcard(parseInt(b.dataset.fcDel,10))));
 }
 async function addFlashcard(){
-  if(!editingModuleId){ alert('Vui lòng lưu module trước khi thêm flashcard.'); return; }
+  if(!flashcardTargetModuleId){ alert('Vui lòng lưu module trước khi thêm flashcard.'); return; }
   const questionVi = document.getElementById('newFcQuestionVi').value.trim();
   const answerVi = document.getElementById('newFcAnswerVi').value.trim();
   const questionEn = document.getElementById('newFcQuestionEn').value.trim();
@@ -3080,12 +3201,12 @@ async function addFlashcard(){
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/admin/flashcards`, {
       method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-      body: JSON.stringify({ moduleId: editingModuleId, questionVi, answerVi, questionEn, answerEn, questionZh, answerZh })
+      body: JSON.stringify({ moduleId: flashcardTargetModuleId, questionVi, answerVi, questionEn, answerEn, questionZh, answerZh })
     });
     if(!res.ok){ const d = await res.json(); alert(d.error || 'Không thêm được flashcard.'); return; }
     ['newFcQuestionVi','newFcAnswerVi','newFcQuestionEn','newFcAnswerEn','newFcQuestionZh','newFcAnswerZh']
       .forEach(id => { document.getElementById(id).value = ''; });
-    await loadFlashcardsAdmin(editingModuleId);
+    await loadFlashcardsAdmin(flashcardTargetModuleId);
     renderModuleTable(); // cập nhật lại số đếm flashcard trong bảng module
   }catch(err){
     console.error('Lỗi thêm flashcard:', err);
@@ -3097,7 +3218,7 @@ async function deleteFlashcard(id){
   const token = adminToken();
   try{
     await fetch(`${WORKER_BASE_URL}/api/admin/flashcards?id=${id}`, { method: 'DELETE', headers: {'Authorization': 'Bearer ' + token} });
-    await loadFlashcardsAdmin(editingModuleId);
+    await loadFlashcardsAdmin(flashcardTargetModuleId);
     renderModuleTable();
   }catch(err){ console.error('Lỗi xóa flashcard:', err); }
 }
@@ -3127,13 +3248,33 @@ async function saveProgramStatus(){
 /* ================================================================
    ===== ADMIN: THÔNG BÁO & BÀI TEST ĐỊNH KỲ =====
    ================================================================ */
+let editingAnnouncementId = null;
 async function loadAnnouncementsAdmin(){
   const token = adminToken();
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/admin/announcements`, { headers: {'Authorization': 'Bearer ' + token} });
     const rows = await res.json();
-    renderAdminListTable('announcementTableBody', rows, deleteAnnouncement);
+    renderAdminListTable('announcementTableBody', rows, deleteAnnouncement, editAnnouncement);
   }catch(err){ console.error('Lỗi tải thông báo:', err); }
+}
+function editAnnouncement(id){
+  fetch(`${WORKER_BASE_URL}/api/admin/announcements`, { headers: {'Authorization': 'Bearer ' + adminToken()} })
+    .then(r => r.json()).then(rows => {
+      const a = rows.find(r => r.id === id);
+      if(!a) return;
+      editingAnnouncementId = id;
+      document.getElementById('newAnnTitle').value = a.title;
+      document.getElementById('newAnnContent').value = a.content || '';
+      document.getElementById('btnCancelAnnEdit').style.display = 'inline-block';
+      document.getElementById('newAnnTitle').scrollIntoView({behavior:'smooth', block:'center'});
+      flashHighlight(document.getElementById('newAnnTitle'));
+    });
+}
+function cancelAnnEdit(){
+  editingAnnouncementId = null;
+  document.getElementById('newAnnTitle').value = '';
+  document.getElementById('newAnnContent').value = '';
+  document.getElementById('btnCancelAnnEdit').style.display = 'none';
 }
 async function addAnnouncement(){
   const msgEl = document.getElementById('annMsg');
@@ -3143,19 +3284,27 @@ async function addAnnouncement(){
   if(!title){ msgEl.textContent = 'Vui lòng nhập tiêu đề.'; msgEl.style.color = 'var(--fail-red)'; return; }
   const token = adminToken();
   try{
-    const res = await fetch(`${WORKER_BASE_URL}/api/admin/announcements`, {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-      body: JSON.stringify({ title, content })
-    });
+    let res;
+    if(editingAnnouncementId){
+      res = await fetch(`${WORKER_BASE_URL}/api/admin/announcements`, {
+        method: 'PUT', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+        body: JSON.stringify({ id: editingAnnouncementId, title, content })
+      });
+    } else {
+      res = await fetch(`${WORKER_BASE_URL}/api/admin/announcements`, {
+        method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+        body: JSON.stringify({ title, content })
+      });
+    }
     if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
-    document.getElementById('newAnnTitle').value = '';
-    document.getElementById('newAnnContent').value = '';
-    msgEl.textContent = 'Đã thêm thông báo.';
+    msgEl.textContent = editingAnnouncementId ? '✅ Đã cập nhật thông báo.' : '✅ Đã thêm thông báo.';
     msgEl.style.color = 'var(--pass-green)';
+    flashHighlight(msgEl);
+    cancelAnnEdit();
     loadAnnouncementsAdmin();
     loadAnnouncementsMenu();
   }catch(err){
-    console.error('Lỗi thêm thông báo:', err);
+    console.error('Lỗi lưu thông báo:', err);
     msgEl.textContent = 'Không kết nối được máy chủ.';
     msgEl.style.color = 'var(--fail-red)';
   }
@@ -3164,15 +3313,19 @@ async function deleteAnnouncement(id){
   if(!confirm('Xóa thông báo này?')) return;
   const token = adminToken();
   await fetch(`${WORKER_BASE_URL}/api/admin/announcements?id=${id}`, { method: 'DELETE', headers: {'Authorization': 'Bearer ' + token} });
+  if(editingAnnouncementId === id) cancelAnnEdit();
   loadAnnouncementsAdmin();
   loadAnnouncementsMenu();
 }
+
+let editingPeriodicTestId = null;
+let periodicTestsCache = [];
 async function loadPeriodicTestsAdmin(){
   const token = adminToken();
   try{
     const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests`, { headers: {'Authorization': 'Bearer ' + token} });
-    const rows = await res.json();
-    renderPeriodicTestTable(rows);
+    periodicTestsCache = await res.json();
+    renderPeriodicTestTable(periodicTestsCache);
   }catch(err){ console.error('Lỗi tải bài test định kỳ:', err); }
 }
 function renderPeriodicTestTable(rows){
@@ -3180,68 +3333,117 @@ function renderPeriodicTestTable(rows){
   tbody.innerHTML = '';
   rows.forEach(r => {
     const tr = document.createElement('tr');
-    const progLabel = r.linked_program_id !== null ? programName(r.linked_program_id) : escUser(r.title);
-    tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(progLabel)}</td><td>${escUser(r.content||'') || '<span style="color:#999;">(trống)</span>'}</td>
-      <td><button type="button" class="icon-btn-del" data-del-id="${r.id}" title="Xóa">🗑️</button></td>`;
+    const full = r.content || '';
+    const shortContent = full.length > 60 ? full.slice(0,60) + '…' : full;
+    tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(r.title)}</td><td>${escUser(shortContent) || '<span style="color:#999;">(trống)</span>'}</td>
+      <td style="white-space:nowrap;">
+        <button type="button" class="icon-btn-edit" data-pt-edit="${r.id}" title="Sửa">✏️</button>
+        <button type="button" class="icon-btn-del" data-pt-del="${r.id}" title="Xóa">🗑️</button><br>
+        <button type="button" class="btn-secondary" data-pt-setup="${r.id}" style="padding:5px 8px;font-size:11px;margin-top:4px;">📝 Thiết lập câu hỏi</button>
+      </td>`;
     tbody.appendChild(tr);
   });
-  tbody.querySelectorAll('[data-del-id]').forEach(b => b.addEventListener('click', () => deletePeriodicTest(parseInt(b.dataset.delId,10))));
+  tbody.querySelectorAll('[data-pt-edit]').forEach(b => b.addEventListener('click', () => editPeriodicTest(parseInt(b.dataset.ptEdit,10))));
+  tbody.querySelectorAll('[data-pt-del]').forEach(b => b.addEventListener('click', () => deletePeriodicTest(parseInt(b.dataset.ptDel,10))));
+  tbody.querySelectorAll('[data-pt-setup]').forEach(b => b.addEventListener('click', () => setupPeriodicTestQuestions(parseInt(b.dataset.ptSetup,10))));
 }
-function populatePeriodicTestProgramSelect(){
-  const sel = document.getElementById('newPtProgram');
-  if(!sel) return;
-  sel.innerHTML = '';
-  PROGRAMS.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name;
-    sel.appendChild(opt);
-  });
+function editPeriodicTest(id){
+  const t = periodicTestsCache.find(r => r.id === id);
+  if(!t) return;
+  editingPeriodicTestId = id;
+  document.getElementById('newPtTitle').value = t.title;
+  document.getElementById('newPtContent').value = t.content || '';
+  document.getElementById('btnCancelPtEdit').style.display = 'inline-block';
+  document.getElementById('newPtTitle').scrollIntoView({behavior:'smooth', block:'center'});
+  flashHighlight(document.getElementById('newPtTitle'));
+}
+function cancelPtEdit(){
+  editingPeriodicTestId = null;
+  document.getElementById('newPtTitle').value = '';
+  document.getElementById('newPtContent').value = '';
+  document.getElementById('btnCancelPtEdit').style.display = 'none';
 }
 async function addPeriodicTest(){
   const msgEl = document.getElementById('annMsg');
   msgEl.textContent = '';
-  const linkedProgramId = document.getElementById('newPtProgram').value;
+  const title = document.getElementById('newPtTitle').value.trim();
   const content = document.getElementById('newPtContent').value.trim();
-  const title = programName(linkedProgramId); // tiêu đề = tên chương trình đã chọn, không gõ tay
+  if(!title){ msgEl.textContent = 'Vui lòng nhập tiêu đề bài test định kỳ.'; msgEl.style.color = 'var(--fail-red)'; return; }
   const token = adminToken();
   try{
-    const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests`, {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-      body: JSON.stringify({ title, content, linkedProgramId })
-    });
+    let res;
+    if(editingPeriodicTestId){
+      res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests`, {
+        method: 'PUT', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+        body: JSON.stringify({ id: editingPeriodicTestId, title, content })
+      });
+    } else {
+      res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests`, {
+        method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+        body: JSON.stringify({ title, content })
+      });
+    }
     if(!res.ok){ const d = await res.json(); msgEl.textContent = d.error || 'Có lỗi xảy ra.'; msgEl.style.color = 'var(--fail-red)'; return; }
-    document.getElementById('newPtContent').value = '';
-    msgEl.textContent = 'Đã thêm bài test định kỳ.';
+    msgEl.textContent = editingPeriodicTestId ? '✅ Đã cập nhật bài test định kỳ.' : '✅ Đã thêm bài test định kỳ — bấm "📝 Thiết lập câu hỏi" ở dòng vừa tạo để soạn đề.';
     msgEl.style.color = 'var(--pass-green)';
+    flashHighlight(msgEl);
+    cancelPtEdit();
     loadPeriodicTestsAdmin();
     loadPeriodicTestsMenu();
   }catch(err){
-    console.error('Lỗi thêm bài test định kỳ:', err);
+    console.error('Lỗi lưu bài test định kỳ:', err);
     msgEl.textContent = 'Không kết nối được máy chủ.';
     msgEl.style.color = 'var(--fail-red)';
   }
 }
 async function deletePeriodicTest(id){
-  if(!confirm('Xóa bài test định kỳ này?')) return;
+  if(!confirm('Xóa bài test định kỳ này? (Ngân hàng câu hỏi riêng của nó sẽ KHÔNG bị xóa, chỉ ẩn khỏi danh sách này.)')) return;
   const token = adminToken();
   await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests?id=${id}`, { method: 'DELETE', headers: {'Authorization': 'Bearer ' + token} });
+  if(editingPeriodicTestId === id) cancelPtEdit();
   loadPeriodicTestsAdmin();
   loadPeriodicTestsMenu();
 }
-// Hàm render bảng dùng chung cho cả 2 danh sách (thông báo / bài test định kỳ).
-function renderAdminListTable(tbodyId, rows, onDelete){
+// Bấm "📝 Thiết lập câu hỏi": tự động tạo (nếu chưa có) 1 "chương trình ẩn" riêng cho bài test
+// định kỳ này, rồi chuyển thẳng Admin sang tab "Ngân hàng câu hỏi" đã chọn sẵn đúng chương
+// trình ẩn đó — ngân hàng câu hỏi ở đây KHÔNG lẫn với bất kỳ chương trình đào tạo nào khác.
+async function setupPeriodicTestQuestions(id){
+  const token = adminToken();
+  try{
+    const res = await fetch(`${WORKER_BASE_URL}/api/admin/periodic-tests/ensure-program`, {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+      body: JSON.stringify({ periodicTestId: id })
+    });
+    const data = await res.json();
+    if(!res.ok){ alert(data.error || 'Không thiết lập được.'); return; }
+    await loadPrograms(); // nạp lại danh sách để chương trình ẩn vừa tạo xuất hiện trong PROGRAMS
+    renderQBankProgramTabs();
+    renderContentProgramTabs();
+    renderDataProgramTabs();
+    populateConfigProgramSelect();
+    setCurrentAdminProgram(data.programId);
+    switchAdminTab('questions');
+    document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'questions'));
+  }catch(err){
+    console.error('Lỗi thiết lập câu hỏi cho bài test định kỳ:', err);
+    alert('Không kết nối được máy chủ.');
+  }
+}
+// Hàm render bảng dùng chung — hỗ trợ cả Sửa (onEdit, tùy chọn) và Xóa (onDelete).
+function renderAdminListTable(tbodyId, rows, onDelete, onEdit){
   const tbody = document.getElementById(tbodyId);
   tbody.innerHTML = '';
   rows.forEach(r => {
     const tr = document.createElement('tr');
     const full = r.content || '';
     const shortContent = full.length > 60 ? full.slice(0,60) + '…' : full;
+    const editBtnHtml = onEdit ? `<button type="button" class="icon-btn-edit" data-edit-id="${r.id}" title="Sửa">✏️</button>` : '';
     tr.innerHTML = `<td style="white-space:nowrap;">${toVNTimeString(r.created_at)}</td><td>${escUser(r.title)}</td><td>${escUser(shortContent) || '<span style="color:#999;">(trống)</span>'}</td>
-      <td><button type="button" class="icon-btn-del" data-del-id="${r.id}" title="Xóa">🗑️</button></td>`;
+      <td style="white-space:nowrap;">${editBtnHtml}<button type="button" class="icon-btn-del" data-del-id="${r.id}" title="Xóa">🗑️</button></td>`;
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll('[data-del-id]').forEach(b => b.addEventListener('click', () => onDelete(parseInt(b.dataset.delId,10))));
+  if(onEdit) tbody.querySelectorAll('[data-edit-id]').forEach(b => b.addEventListener('click', () => onEdit(parseInt(b.dataset.editId,10))));
 }
 
 /* ---- Thanh dung lượng Cloudflare D1 (ước lượng qua SUM(LENGTH()) — D1 chặn PRAGMA đo dung lượng) ---- */
@@ -3942,7 +4144,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btnConfirmAnnouncementRead').addEventListener('click', confirmAnnouncementRead);
   document.getElementById('btnBackFromAnnouncement').addEventListener('click', backFromAnnouncementDetail);
   document.getElementById('btnAddAnnouncement').addEventListener('click', addAnnouncement);
+  document.getElementById('btnCancelAnnEdit').addEventListener('click', cancelAnnEdit);
   document.getElementById('btnAddPeriodicTest').addEventListener('click', addPeriodicTest);
+  document.getElementById('btnCancelPtEdit').addEventListener('click', cancelPtEdit);
+  // Thanh công cụ định dạng (đậm/nghiêng/gạch chân/màu/cỡ chữ) cho ô nội dung module —
+  // dùng execCommand (vẫn hoạt động tốt trên mọi trình duyệt hiện tại cho các thao tác cơ
+  // bản này dù đã bị đánh dấu "deprecated" trong đặc tả kỹ thuật).
+  document.querySelectorAll('.rte-toolbar').forEach(toolbar => {
+    const targetId = toolbar.dataset.rteFor;
+    const editor = document.getElementById(targetId);
+    toolbar.querySelectorAll('.rte-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        editor.focus();
+        document.execCommand(btn.dataset.cmd, false, null);
+      });
+    });
+    const colorInput = toolbar.querySelector('.rte-color');
+    if(colorInput) colorInput.addEventListener('input', () => {
+      editor.focus();
+      document.execCommand('foreColor', false, colorInput.value);
+    });
+    const sizeSelect = toolbar.querySelector('.rte-fontsize');
+    if(sizeSelect) sizeSelect.addEventListener('change', () => {
+      editor.focus();
+      document.execCommand('fontSize', false, sizeSelect.value);
+    });
+  });
   document.getElementById('dashPeriodSelect').addEventListener('change', loadDashboardStats);
   document.getElementById('btnDashRefresh').addEventListener('click', loadDashboardStats);
   document.getElementById('btnCloseAdmin').addEventListener('click', closeAdminModal);
