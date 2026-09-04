@@ -869,7 +869,7 @@ th.donts{background:#FFEBEE;color:#C62828;}
   <div style="background:var(--sf-grey);border-radius:10px;padding:20px;">
     <div style="font-size:11.5px;color:#888;margin-bottom:6px;" id="annDetailDate"></div>
     <h2 style="margin:0 0 14px 0;color:var(--sf-black);font-size:clamp(17px,4.2vw,21px);" id="annDetailTitle"></h2>
-    <div style="font-size:14px;line-height:1.7;color:var(--sf-dark-grey);white-space:pre-wrap;" id="annDetailContent"></div>
+    <div style="font-size:14px;line-height:1.7;color:var(--sf-dark-grey);" id="annDetailContent"></div>
   </div>
   <div style="background:#fff;border:1px solid var(--sf-border);border-radius:10px;padding:18px;margin-top:16px;text-align:center;">
     <div style="font-size:13.5px;font-weight:700;margin-bottom:12px;" id="annDetailReadStatus"></div>
@@ -3326,6 +3326,54 @@ function renderBlocksToHtml(raw){
     return `<div style="${bgStyle}margin-bottom:10px;">${b.html}</div>`;
   }).join('');
 }
+// Dán nội dung từ Word/Outlook thường kèm theo RẤT NHIỀU rác: style "mso-*", comment
+// <!--[if...]-->, thẻ <o:p>, và ĐẶC BIỆT là chèn <br> tại TỪNG điểm xuống dòng cũ của văn
+// bản gốc (theo đúng bề rộng trang Word lúc đó) — khiến câu bị ngắt giữa chừng dù không phải
+// hết đoạn. Hàm này dọn sạch bằng cách: (1) bỏ toàn bộ style/thẻ đặc thù Word, chỉ giữ màu
+// chữ/đậm/nghiêng, (2) coi CỤM 2+ <br> liên tiếp là ranh giới đoạn thật (giữ lại), còn 1 <br>
+// đơn lẻ ở giữa là do Word tự xuống dòng theo bề rộng cũ (không phải hết câu) -> thay bằng
+// dấu cách để câu nối liền mạch lại như bình thường.
+function cleanPastedHtml(rawHtml){
+  let html = rawHtml
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<\/?o:p>/gi, '')
+    .replace(/<xml>[\s\S]*?<\/xml>/gi, '');
+  // Gộp/thay <br> TRƯỚC khi dựng DOM (đơn giản và đáng tin cậy hơn xử lý sau khi đã là DOM).
+  html = html.replace(/(?:<br[^>]*>\s*){2,}/gi, '</p><p>');
+  html = html.replace(/<br[^>]*>/gi, ' ');
+
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  const allowedTags = new Set(['b','strong','i','em','u','span','p','ul','ol','li','div','a']);
+  function cleanNode(node){
+    if(node.nodeType === Node.TEXT_NODE) return node.cloneNode();
+    if(node.nodeType !== Node.ELEMENT_NODE) return null;
+    const tag = node.tagName.toLowerCase();
+    if(!allowedTags.has(tag)){
+      // Thẻ lạ (VD <o:p>, <font> kiểu Word cũ...) -> bỏ thẻ, giữ nguyên nội dung con.
+      const frag = document.createDocumentFragment();
+      node.childNodes.forEach(child => { const c = cleanNode(child); if(c) frag.appendChild(c); });
+      return frag;
+    }
+    const newEl = document.createElement(tag === 'div' ? 'p' : tag);
+    if(tag === 'a' && node.href) newEl.setAttribute('href', node.href);
+    // CHỈ giữ đúng 3 thuộc tính định dạng có ý nghĩa — bỏ hết margin/line-height/mso-*/
+    // letter-spacing... (chính các style này gây khoảng cách dòng khổng lồ khi dán từ Word).
+    if(node.style){
+      if(node.style.color) newEl.style.color = node.style.color;
+      if(node.style.fontWeight && !['normal','400'].includes(String(node.style.fontWeight))) newEl.style.fontWeight = 'bold';
+      if(node.style.fontStyle === 'italic') newEl.style.fontStyle = 'italic';
+    }
+    node.childNodes.forEach(child => { const c = cleanNode(child); if(c) newEl.appendChild(c); });
+    return newEl;
+  }
+  const outFrag = document.createDocumentFragment();
+  temp.childNodes.forEach(child => { const c = cleanNode(child); if(c) outFrag.appendChild(c); });
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(outFrag);
+  // Loại bỏ các <p> hoàn toàn trống (thường sinh ra sau khi dọn) để tránh khoảng trắng thừa.
+  return wrapper.innerHTML.replace(/<p>(\s|&nbsp;)*<\/p>/gi, '');
+}
 function createContentBlockElement(lang, blockData){
   const div = document.createElement('div');
   div.className = 'content-block';
@@ -3366,6 +3414,21 @@ function createContentBlockElement(lang, blockData){
     <div class="rte-editor content-block-editor" contenteditable="true" data-placeholder="Nội dung khối này..." style="line-height:1.5;"></div>`;
   const editor = div.querySelector('.content-block-editor');
   editor.innerHTML = blockData.html || '';
+  // Chặn hành vi dán mặc định của trình duyệt (vốn giữ nguyên style rác của Word/Outlook),
+  // tự dọn sạch rồi mới chèn vào — xem chi tiết lý do ở hàm cleanPastedHtml() phía trên.
+  editor.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const clipboard = e.clipboardData || window.clipboardData;
+    const html = clipboard.getData('text/html');
+    let insertHtml;
+    if(html && html.trim()){
+      insertHtml = cleanPastedHtml(html);
+    } else {
+      const text = clipboard.getData('text/plain') || '';
+      insertHtml = text.split(/\r?\n/).map(line => `<p>${escUser(line)}</p>`).join('');
+    }
+    document.execCommand('insertHTML', false, insertHtml);
+  });
   // Áp màu nền hiện tại cho cả khối + toolbar, và cập nhật ngay khi đổi màu.
   const applyBg = (color) => {
     div.style.background = color;
