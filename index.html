@@ -3347,10 +3347,23 @@ function createContentBlockElement(lang, blockData){
         <option value="5">Lớn</option>
         <option value="7">Rất lớn</option>
       </select>
+      <span style="width:1px;background:var(--sf-border);align-self:stretch;margin:0 2px;"></span>
+      <button type="button" class="rte-btn" data-cmd="justifyLeft" title="Căn trái">⬅</button>
+      <button type="button" class="rte-btn" data-cmd="justifyCenter" title="Căn giữa">↔</button>
+      <button type="button" class="rte-btn" data-cmd="justifyRight" title="Căn phải">➡</button>
+      <button type="button" class="rte-btn" data-cmd="justifyFull" title="Căn đều 2 bên">☰</button>
+      <select class="rte-lineheight" title="Giãn dòng">
+        <option value="">Giãn dòng</option>
+        <option value="1">1.0</option>
+        <option value="1.15">1.15</option>
+        <option value="1.5" selected>1.5</option>
+        <option value="2">2.0</option>
+        <option value="2.5">2.5</option>
+      </select>
       <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Danh sách gạch đầu dòng">• List</button>
       <button type="button" class="rte-btn" data-cmd="removeFormat" title="Xóa định dạng">Xóa ĐD</button>
     </div>
-    <div class="rte-editor content-block-editor" contenteditable="true" data-placeholder="Nội dung khối này..."></div>`;
+    <div class="rte-editor content-block-editor" contenteditable="true" data-placeholder="Nội dung khối này..." style="line-height:1.5;"></div>`;
   const editor = div.querySelector('.content-block-editor');
   editor.innerHTML = blockData.html || '';
   // Áp màu nền hiện tại cho cả khối + toolbar, và cập nhật ngay khi đổi màu.
@@ -3370,6 +3383,23 @@ function createContentBlockElement(lang, blockData){
   colorInput.addEventListener('input', () => { editor.focus(); document.execCommand('foreColor', false, colorInput.value); });
   const sizeSelect = div.querySelector('.rte-fontsize');
   sizeSelect.addEventListener('change', () => { editor.focus(); document.execCommand('fontSize', false, sizeSelect.value); });
+  // Giãn dòng: execCommand không có lệnh chuẩn cho line-height trên mọi trình duyệt, nên tự
+  // áp dụng CSS line-height trực tiếp lên đoạn/thẻ khối chứa vị trí con trỏ đang đứng (nếu có
+  // bôi đen/đặt con trỏ trong 1 đoạn cụ thể), hoặc lên toàn bộ khối nếu không xác định được.
+  const lineHeightSelect = div.querySelector('.rte-lineheight');
+  lineHeightSelect.addEventListener('change', () => {
+    if(!lineHeightSelect.value) return;
+    editor.focus();
+    const sel = window.getSelection();
+    let target = editor;
+    if(sel && sel.rangeCount){
+      let node = sel.anchorNode;
+      while(node && node !== editor && node.nodeType !== 1) node = node.parentNode;
+      while(node && node !== editor && !['DIV','P','LI','BLOCKQUOTE'].includes(node.tagName)) node = node.parentNode;
+      if(node && node !== editor) target = node;
+    }
+    target.style.lineHeight = lineHeightSelect.value;
+  });
   return div;
 }
 function setContentBlocksData(lang, blocksArray){
